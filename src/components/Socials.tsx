@@ -19,9 +19,10 @@ const Label = styled.div`
 const Socials = () => {
   const [current, setCurrent] = useState(0);
   useEffect(() => {
-    setInterval(() => {
-      setCurrent(current === 0 ? 1 : 0);
+    const timer = setInterval(() => {
+      setCurrent((current) => (current === 0 ? 1 : 0));
     }, 5000);
+    return () => clearInterval(timer);
   }, []);
   return (
     <AnimatePresence>
