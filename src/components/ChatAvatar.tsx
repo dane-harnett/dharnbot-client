@@ -92,7 +92,10 @@ const ChatAvatar = ({ user, movement }: ChatAvatarProps) => {
         >
           <div
             style={{
-              backgroundColor: "rgba(0,0,0,0.75)",
+              backgroundColor:
+                user.username === "daneharnett"
+                  ? "rgba(123, 37, 41, 0.75)"
+                  : "rgba(0,0,0,0.75)",
               color: "#fff",
               padding: 4,
               position: "absolute",
@@ -110,7 +113,10 @@ const ChatAvatar = ({ user, movement }: ChatAvatarProps) => {
           >
             <div
               style={{
-                backgroundColor: "mediumseagreen",
+                backgroundColor:
+                  user.username === "daneharnett"
+                    ? "#7b2529"
+                    : "mediumseagreen",
                 borderRadius: "50%",
                 display: "flex",
                 justifyContent: "space-around",

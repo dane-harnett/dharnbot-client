@@ -22,7 +22,7 @@ const Socials = () => {
     setInterval(() => {
       setCurrent(current === 0 ? 1 : 0);
     }, 5000);
-  });
+  }, []);
   return (
     <AnimatePresence>
       {current === 0 && (
