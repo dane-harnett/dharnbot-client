@@ -20,6 +20,7 @@ interface IChatAvatar {
     distance: number;
   };
   expiryTimer: ReturnType<typeof setTimeout>;
+  lastMessageDate: Date;
 }
 
 interface State {
@@ -44,7 +45,7 @@ type Action =
 const calculateDistance = (action: MessageAction) => {
   const segments = action.payload.commandData.message.message.split(" ").length;
   const broadcasterBoost =
-    action.payload.commandData.message.context.badges.broadcaster === "1"
+    action.payload.commandData.message.context.badges?.broadcaster === "1"
       ? 5
       : 1;
 
@@ -83,6 +84,7 @@ function reducer(state: State, action: Action) {
                   distance: calculateDistance(action),
                 },
                 expiryTimer: action.payload.expiryTimer,
+                lastMessageDate: new Date(),
               };
             }
             return chatAvatar;
@@ -101,6 +103,7 @@ function reducer(state: State, action: Action) {
               distance: calculateDistance(action),
             },
             expiryTimer: action.payload.expiryTimer,
+            lastMessageDate: new Date(),
           },
         ],
       };
@@ -139,6 +142,7 @@ const ChatAvatars = () => {
             profile_image_url: avatar.profile_image_url,
           }}
           movement={avatar.movement}
+          lastMessageDate={avatar.lastMessageDate}
         />
       ))}
     </div>

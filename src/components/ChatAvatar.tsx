@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { add } from "date-fns";
+import ChatAvatarCountdown from "./ChatAvatarCountdown";
 
 interface ChatAvatarProps {
   user: {
@@ -9,9 +11,10 @@ interface ChatAvatarProps {
   movement: {
     distance: number;
   };
+  lastMessageDate: Date;
 }
 
-const ChatAvatar = ({ user, movement }: ChatAvatarProps) => {
+const ChatAvatar = ({ user, movement, lastMessageDate }: ChatAvatarProps) => {
   const [currentX, setCurrentX] = useState(25);
   const [movementLocked, setMovementLocked] = useState(false);
   const [direction, setDirection] = useState("right");
@@ -90,6 +93,20 @@ const ChatAvatar = ({ user, movement }: ChatAvatarProps) => {
           animate={{ y: [-96, -46] }}
           style={{ position: "absolute" }}
         >
+          <div
+            style={{
+              border: "1px solid black",
+              color: "#fff",
+              position: "absolute",
+              top: -42,
+              width: 100,
+              height: 10,
+            }}
+          >
+            <ChatAvatarCountdown
+              targetDate={add(lastMessageDate, { seconds: 60 })}
+            />
+          </div>
           <div
             style={{
               backgroundColor:
