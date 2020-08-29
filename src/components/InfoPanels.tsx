@@ -21,6 +21,8 @@ export default function InfoPanels() {
       <InfoPanel title="!cam">
         Control my webcam:
         <br />
+        <ChatCommand command="!cam [on|off]" />
+        <br />
         <ChatCommand command="!cam [top-left|top-right|bottom-left|bottom-right]" />
         <br />
         <ChatCommand command="!cam zoom [100%|150%|200%]" />
