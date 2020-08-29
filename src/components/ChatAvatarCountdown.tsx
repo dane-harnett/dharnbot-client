@@ -11,12 +11,19 @@ const ChatAvatarCountdown = ({ targetDate }: { targetDate: Date }) => {
     }, 500);
     return () => clearInterval(timer);
   }, [setRemaining, targetDate]);
+
+  const percentRemaining = (remaining / 60) * 100;
   return (
     <div
       style={{
         display: "block",
-        backgroundColor: "palevioletred",
-        width: `${(remaining / 60) * 100}%`,
+        backgroundColor:
+          percentRemaining > 65
+            ? "rgb(64,143,73)"
+            : percentRemaining > 25
+            ? "rgb(241,195,67)"
+            : "rgb(201,57,43)",
+        width: `${percentRemaining}%`,
         height: 10,
       }}
     ></div>

@@ -90,75 +90,80 @@ const ChatAvatar = ({ user, movement, lastMessageDate }: ChatAvatarProps) => {
       >
         <motion.div
           transition={bounceTransition}
-          animate={{ y: [-96, -46] }}
-          style={{ position: "absolute" }}
+          animate={{ y: ["-50%", "0%"] }}
         >
           <div
             style={{
-              border: "1px solid black",
-              color: "#fff",
-              position: "absolute",
-              top: -42,
-              width: 100,
-              height: 10,
+              alignItems: "center",
+              display: "flex",
+              flexDirection: "column",
             }}
           >
-            <ChatAvatarCountdown
-              targetDate={add(lastMessageDate, { seconds: 60 })}
-            />
-          </div>
-          <div
-            style={{
-              backgroundColor:
-                user.username === "daneharnett"
-                  ? "rgba(123, 37, 41, 0.75)"
-                  : "rgba(0,0,0,0.75)",
-              color: "#fff",
-              padding: 4,
-              position: "absolute",
-              top: -30,
-            }}
-          >
-            <div>{user.username}</div>
-          </div>
-          <motion.div
-            transition={spinTransition}
-            animate={{
-              rotate: direction === "right" ? 360 : -360,
-            }}
-            style={{ position: "absolute", top: 0 }}
-          >
+            <div
+              style={{
+                border: "1px solid black",
+                color: "#fff",
+                marginBottom: 2,
+                width: 100,
+                height: 10,
+              }}
+            >
+              <ChatAvatarCountdown
+                targetDate={add(lastMessageDate, { seconds: 60 })}
+              />
+            </div>
             <div
               style={{
                 backgroundColor:
                   user.username === "daneharnett"
-                    ? "#7b2529"
-                    : "mediumseagreen",
-                borderRadius: "50%",
-                display: "flex",
-                justifyContent: "space-around",
-                alignItems: "center",
-                width: 56,
-                height: 56,
-                overflow: "hidden",
+                    ? "rgba(123, 37, 41, 0.75)"
+                    : "rgba(0,0,0,0.75)",
+                color: "#fff",
+                marginBottom: 2,
+                padding: 4,
               }}
+            >
+              <div>{user.username}</div>
+            </div>
+            <motion.div
+              transition={spinTransition}
+              animate={{
+                rotate: direction === "right" ? 360 : -360,
+              }}
+              style={{ width: 56 }}
             >
               <div
                 style={{
+                  backgroundColor:
+                    user.username === "daneharnett"
+                      ? "#7b2529"
+                      : "mediumseagreen",
                   borderRadius: "50%",
-                  width: 48,
-                  height: 48,
+                  display: "flex",
+                  justifyContent: "space-around",
+                  alignItems: "center",
+                  width: 56,
+                  height: 56,
                   overflow: "hidden",
                 }}
               >
-                <img
-                  alt={user.username}
-                  style={{ width: 48, height: 48 }}
-                  src={user.profile_image_url}
-                />
+                <div
+                  style={{
+                    borderRadius: "50%",
+                    width: 48,
+                    height: 48,
+                    overflow: "hidden",
+                  }}
+                >
+                  <img
+                    alt={user.username}
+                    style={{ width: 48, height: 48 }}
+                    src={user.profile_image_url}
+                  />
+                </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </motion.div>
       </motion.div>
     </div>

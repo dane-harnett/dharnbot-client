@@ -42,17 +42,23 @@ type Action =
       };
     };
 
+const calculateBoosts = (action: MessageAction) => {
+  const context = action.payload.commandData.message.context;
+
+  if (context.badges?.broadcaster === "1") {
+    return 3;
+  }
+
+  if (context.subscriber) {
+    return 2;
+  }
+
+  return 1;
+};
+
 const calculateDistance = (action: MessageAction) => {
   const segments = action.payload.commandData.message.message.split(" ").length;
-  const broadcasterBoost =
-    action.payload.commandData.message.context.badges?.broadcaster === "1"
-      ? 5
-      : 1;
-
-  const subscriberBoost = action.payload.commandData.message.context.subscriber
-    ? 5
-    : 1;
-  const boosts = broadcasterBoost + subscriberBoost;
+  const boosts = calculateBoosts(action);
   return boosts * 100 * (segments > 3 ? 3 : segments);
 };
 
