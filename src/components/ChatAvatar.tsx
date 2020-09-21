@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { add } from "date-fns";
 import ChatAvatarCountdown from "./ChatAvatarCountdown";
+import ChatAvatarUsername from "./ChatAvatarUsername";
 
 interface ChatAvatarProps {
   user: {
@@ -99,32 +100,10 @@ const ChatAvatar = ({ user, movement, lastMessageDate }: ChatAvatarProps) => {
               flexDirection: "column",
             }}
           >
-            <div
-              style={{
-                border: "1px solid black",
-                color: "#fff",
-                marginBottom: 2,
-                width: 100,
-                height: 10,
-              }}
-            >
-              <ChatAvatarCountdown
-                targetDate={add(lastMessageDate, { seconds: 60 })}
-              />
-            </div>
-            <div
-              style={{
-                backgroundColor:
-                  user.username === "daneharnett"
-                    ? "rgba(123, 37, 41, 0.75)"
-                    : "rgba(0,0,0,0.75)",
-                color: "#fff",
-                marginBottom: 2,
-                padding: 4,
-              }}
-            >
-              <div>{user.username}</div>
-            </div>
+            <ChatAvatarCountdown
+              targetDate={add(lastMessageDate, { seconds: 60 })}
+            />
+            <ChatAvatarUsername username={user.username} />
             <motion.div
               transition={spinTransition}
               animate={{

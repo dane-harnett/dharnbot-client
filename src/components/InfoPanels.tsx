@@ -7,11 +7,12 @@ export default function InfoPanels() {
   return (
     <div>
       <InfoPanel title="!project">
-        Im building a twitch chatbot with commands to integrate with OBS, games
-        and more. Ill be using TypeScript, Express and Jest.
+        I'm working on You Done Yet - a habit tracker in TypeScript, GraphQL,
+        Apollo, Next.js, React and Cypress.
       </InfoPanel>
       <InfoPanel title="!today">
-        Today I'm working on doing a thing and then doing another thing.
+        Today I'm working on the backend of You Done Yet, setting up GraphQL and
+        a database.
       </InfoPanel>
       <InfoPanel title="!socials">
         <ChatCommand command="!twitter" /> - for a link to my twitter account

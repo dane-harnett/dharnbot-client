@@ -1,15 +1,42 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import styled from "styled-components";
 import { useSocket } from "../hooks/useSocket";
 
-const CLOSE_TIMEOUT = 5000;
+const CLOSE_TIMEOUT = 15000;
 const PANEL_WIDTH = 400;
+
+const InfoPanelContainer = styled.div`
+  align-items: flex-start;
+  display: flex;
+  width: 100%;
+`;
+
+const InfoPanelContent = styled.div`
+  background-color: #f0deba;
+  border: 1px solid #7b2529;
+  color: #7b2529;
+  font-size: 16px;
+  height: 100%;
+  padding: 8px;
+  text-align: left;
+  width: 100%;
+`;
+
+const InfoPanelTitle = styled.div`
+  background-color: #7b2529;
+  border-radius: 0 4px 4px 0;
+  color: #f0deba;
+  font-size: 20px;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  padding: 8px;
+`;
 
 interface InfoPanelProps {
   children: React.ReactNode;
   title: string;
 }
-
 export default function InfoPanel({ title = "", children }: InfoPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const socket = useSocket();
@@ -27,41 +54,16 @@ export default function InfoPanel({ title = "", children }: InfoPanelProps) {
 
   return (
     <motion.div
-      initial={{ x: -(PANEL_WIDTH - 32) }}
-      animate={{ x: isOpen ? 0 : -(PANEL_WIDTH - 32) }}
+      initial={{ x: -(PANEL_WIDTH - 36) }}
+      animate={{ x: isOpen ? 0 : -(PANEL_WIDTH - 36) }}
       style={{ marginTop: "4px", width: PANEL_WIDTH }}
     >
-      <div style={{ alignItems: "flex-start", display: "flex", width: "100%" }}>
-        <div
-          style={{
-            backgroundColor: "#f0deba",
-            border: "1px solid #7b2529",
-            boxSizing: "border-box",
-            color: "#7b2529",
-            fontSize: "16px",
-            height: "100%",
-            padding: "8px",
-            textAlign: "left",
-            width: "100%",
-          }}
-        >
-          {children}
-        </div>
-        <div
-          style={{
-            backgroundColor: "#7b2529",
-            borderRadius: "0 4px 4px 0",
-            color: "#f0deba",
-            fontSize: "16px",
-            writingMode: "vertical-rl",
-            textOrientation: "mixed",
-            padding: "8px",
-          }}
-          onClick={() => setIsOpen(!isOpen)}
-        >
+      <InfoPanelContainer>
+        <InfoPanelContent>{children}</InfoPanelContent>
+        <InfoPanelTitle onClick={() => setIsOpen(!isOpen)}>
           {title}
-        </div>
-      </div>
+        </InfoPanelTitle>
+      </InfoPanelContainer>
     </motion.div>
   );
 }

@@ -16,17 +16,26 @@ const ChatAvatarCountdown = ({ targetDate }: { targetDate: Date }) => {
   return (
     <div
       style={{
-        display: "block",
-        backgroundColor:
-          percentRemaining > 65
-            ? "rgb(64,143,73)"
-            : percentRemaining > 25
-            ? "rgb(241,195,67)"
-            : "rgb(201,57,43)",
-        width: `${percentRemaining}%`,
+        border: "1px solid black",
+        marginBottom: 2,
+        width: 100,
         height: 10,
       }}
-    ></div>
+    >
+      <div
+        style={{
+          display: "block",
+          backgroundColor:
+            percentRemaining > 65
+              ? "rgb(64,143,73)"
+              : percentRemaining > 25
+              ? "rgb(241,195,67)"
+              : "rgb(201,57,43)",
+          width: `${percentRemaining}%`,
+          height: 10,
+        }}
+      ></div>
+    </div>
   );
 };
 
