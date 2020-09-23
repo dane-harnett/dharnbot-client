@@ -7,6 +7,7 @@ import ChatAvatars from "./ChatAvatars";
 import Socials from "./Socials";
 import TestResults from "./TestResults";
 import AdminScreen from "./AdminScreen";
+import TwitchFollow from "./TwitchFollow";
 
 import { createGlobalStyle } from "styled-components";
 import reset from "styled-reset";
@@ -20,6 +21,13 @@ const GlobalStyle = createGlobalStyle`
     font-size: 16px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+  .overlay {
+    width: 1920;
+    height: 1080;
+    left: 0;
+    top: 0;
+    position: relative;
   }
 `;
 
@@ -36,6 +44,7 @@ function App() {
             <InfoPanels />
             <Socials />
             <TestResults />
+            <TwitchFollow />
           </div>
         </Route>
       </Switch>

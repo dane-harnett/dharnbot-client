@@ -17,40 +17,39 @@ const Label = styled.div`
   width: 400px;
 `;
 
+const items = [
+  () => (
+    <Label>
+      <TwitterIcon /> /daneharnett
+    </Label>
+  ),
+  () => (
+    <Label>
+      <YouTubeIcon /> /user/daneharnett
+    </Label>
+  ),
+];
+
 const Socials = () => {
   const [current, setCurrent] = useState(0);
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrent((current) => (current === 0 ? 1 : 0));
+      setCurrent((current) =>
+        current + 1 > items.length - 1 ? 0 : current + 1
+      );
     }, 5000);
     return () => clearInterval(timer);
   }, []);
   return (
     <AnimatePresence>
-      {current === 0 && (
-        <motion.div
-          key={0}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <Label>
-            <TwitterIcon /> /daneharnett{" "}
-          </Label>
-        </motion.div>
-      )}
-      {current === 1 && (
-        <motion.div
-          key={1}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <Label>
-            <YouTubeIcon /> /user/daneharnett{" "}
-          </Label>
-        </motion.div>
-      )}
+      <motion.div
+        key={current}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      >
+        {items[current]()}
+      </motion.div>
     </AnimatePresence>
   );
 };
