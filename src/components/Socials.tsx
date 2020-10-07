@@ -7,14 +7,13 @@ import YouTubeIcon from "@material-ui/icons/YouTube";
 const Label = styled.div`
   align-items: center;
   background-color: #7b2529;
-  bottom: 225px;
   box-sizing: border-box;
   color: #f0deba;
   display: flex;
   font-size: 24px;
   padding: 4px;
   position: fixed;
-  width: 400px;
+  width: 100%;
 `;
 
 const items = [

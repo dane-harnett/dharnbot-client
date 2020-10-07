@@ -1,11 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
-import InfoPanels from "./InfoPanels";
-import Countdown from "./Countdown";
-import ChatAvatars from "./ChatAvatars";
 import Socials from "./Socials";
-import TestResults from "./TestResults";
 import AdminScreen from "./AdminScreen";
 import TwitchFollow from "./TwitchFollow";
 
@@ -41,9 +37,7 @@ function App() {
         </Route>
         <Route path="/">
           <div className="overlay">
-            <InfoPanels />
             <Socials />
-            <TestResults />
             <TwitchFollow />
           </div>
         </Route>
