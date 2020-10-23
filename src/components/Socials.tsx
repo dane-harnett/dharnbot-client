@@ -1,56 +1,50 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styled from "styled-components";
-import { motion, AnimatePresence } from "framer-motion";
 import TwitterIcon from "@material-ui/icons/Twitter";
 import YouTubeIcon from "@material-ui/icons/YouTube";
+import GitHubIcon from "@material-ui/icons/GitHub";
 
-const Label = styled.div`
+const SocialsContainer = styled.div`
   align-items: center;
-  background-color: #7b2529;
+  background-color: #212121;
+  border-bottom: 3px solid #e91530;
   box-sizing: border-box;
-  color: #f0deba;
+  color: #fff;
   display: flex;
   font-size: 24px;
-  padding: 4px;
-  position: fixed;
+  padding: 6px;
   width: 100%;
+`;
+
+const SocialLabel = styled.div`
+  align-items: center;
+  box-sizing: border-box;
+  color: #fff;
+  display: flex;
+  font-size: 24px;
+  padding: 6px;
 `;
 
 const items = [
   () => (
-    <Label>
+    <SocialLabel>
       <TwitterIcon /> /daneharnett
-    </Label>
+    </SocialLabel>
   ),
   () => (
-    <Label>
+    <SocialLabel>
       <YouTubeIcon /> /user/daneharnett
-    </Label>
+    </SocialLabel>
+  ),
+  () => (
+    <SocialLabel>
+      <GitHubIcon /> /dane-harnett
+    </SocialLabel>
   ),
 ];
 
 const Socials = () => {
-  const [current, setCurrent] = useState(0);
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrent((current) =>
-        current + 1 > items.length - 1 ? 0 : current + 1
-      );
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
-  return (
-    <AnimatePresence>
-      <motion.div
-        key={current}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      >
-        {items[current]()}
-      </motion.div>
-    </AnimatePresence>
-  );
+  return <SocialsContainer>{items.map((item) => item())}</SocialsContainer>;
 };
 
 export default Socials;

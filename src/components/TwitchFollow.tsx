@@ -5,10 +5,11 @@ import BookmarksIcon from "@material-ui/icons/Bookmarks";
 
 const Notification = styled.div`
   align-items: center;
-  background-color: #7b2529;
+  background-color: #212121;
+  border: 3px solid #e91520;
   border-radius: 4px;
   box-sizing: border-box;
-  color: #f0deba;
+  color: #fff;
   display: flex;
   font-size: 24px;
   padding: 8px;
