@@ -41,6 +41,7 @@ const items = [
       <GitHubIcon /> /dane-harnett
     </SocialLabel>
   ),
+  () => <SocialLabel>!project - I'm trying to build a game</SocialLabel>,
 ];
 
 const Socials = () => {
