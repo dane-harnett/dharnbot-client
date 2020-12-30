@@ -1,11 +1,12 @@
 import React from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
-//import ChatAvatars from "./ChatAvatars";
-import Snake from "./Snake";
+import BottomBar from "./BottomBar";
 import Socials from "./Socials";
 import AdminScreen from "./AdminScreen";
-import TwitchFollow from "./TwitchFollow";
+import Today from "./Today";
+import TopBar from "./TopBar";
+import TwitchFollowerCount from "./TwitchFollowerCount";
 
 import { createGlobalStyle } from "styled-components";
 import reset from "styled-reset";
@@ -39,9 +40,13 @@ function App() {
         </Route>
         <Route path="/">
           <div className="overlay">
-            <Snake />
-            <Socials />
-            <TwitchFollow />
+            <TopBar>
+              <Socials />
+              <TwitchFollowerCount />
+            </TopBar>
+            <BottomBar>
+              <Today />
+            </BottomBar>
           </div>
         </Route>
       </Switch>
