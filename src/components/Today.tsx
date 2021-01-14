@@ -27,48 +27,49 @@ interface StreamScheduleEvent {
   startHour: number;
   endHour: number;
   showTitle: string;
+  streamTitle: string;
 }
 
-const schedule: StreamScheduleEvent[] = [
-  {
-    dayName: DayNames.Monday,
-    startHour: 17,
-    endHour: 19,
-    showTitle: "Game Making Monday - Among Us in Pixel Art with TypeScript!",
-  },
-  {
-    dayName: DayNames.Wednesday,
-    startHour: 17,
-    endHour: 19,
-    showTitle: "Wednesday Q&A - let's chat about coding stuff hooray!",
-  },
-  {
-    dayName: DayNames.Friday,
-    startHour: 17,
-    endHour: 19,
-    showTitle:
-      "Friday Free For All - might be chatbot or overlay or something else!",
-  },
-];
+interface StreamDetails {
+  schedule: StreamScheduleEvent[];
+  agenda: string[];
+  currentAgendaItemIndex: number;
+}
 
 const Today = () => {
   const socket = useSocket();
-  const [streamTitle, setStreamTitle] = useState<string>("Untitled stream");
-  const [streamTopic, setStreamTopic] = useState<string>("No topic yet");
+  const [streamDetails, setStreamDetails] = useState<StreamDetails>({
+    schedule: [],
+    agenda: [],
+    currentAgendaItemIndex: 0,
+  });
+  const [customStreamTitle, setCustomStreamTitle] = useState<string>(
+    "Untitled stream"
+  );
 
   useEffect(() => {
     socket.on("CHANGE_STREAM_TITLE", (event: { streamTitle: string }) => {
-      setStreamTitle(event.streamTitle);
+      setCustomStreamTitle(event.streamTitle);
     });
-    socket.on("CHANGE_STREAM_TOPIC", (event: { streamTopic: string }) => {
-      setStreamTopic(event.streamTopic);
-    });
+
+    socket.on(
+      "STREAM_DETAILS_RESPONSE",
+      (event: { streamDetails: StreamDetails }) => {
+        setStreamDetails(event.streamDetails);
+      }
+    );
+
+    socket.emit("STREAM_DETAILS_REQUEST");
+    const FIVE_MINUTES = 300000;
+    setInterval(() => {
+      socket.emit("STREAM_DETAILS_REQUEST");
+    }, FIVE_MINUTES);
   }, [socket]);
 
   const today = new Date();
   const todaysDayName = DayNames[today.getDay()];
 
-  const message = schedule.find((event) => {
+  const scheduledStream = streamDetails.schedule.find((event) => {
     return (
       DayNames[event.dayName] === todaysDayName &&
       today.getHours() >= event.startHour &&
@@ -76,10 +77,18 @@ const Today = () => {
     );
   });
 
+  const streamTitle = scheduledStream?.streamTitle || customStreamTitle;
+  const currentAgendaItem =
+    streamDetails.agenda[streamDetails.currentAgendaItemIndex] ||
+    "No topic yet";
+  const nextAgendaItem =
+    streamDetails.agenda[streamDetails.currentAgendaItemIndex + 1] ||
+    "No topic yet";
+
   return (
     <Container>
-      {message?.showTitle || "Unscheduled stream"} - {streamTitle} -{" "}
-      {streamTopic}
+      {scheduledStream?.showTitle || "Unscheduled stream"} - {streamTitle} -{" "}
+      {currentAgendaItem} - Up next... {nextAgendaItem}
     </Container>
   );
 };
