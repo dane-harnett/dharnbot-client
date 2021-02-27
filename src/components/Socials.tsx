@@ -26,7 +26,7 @@ const Socials = () => {
         <TwitterIcon /> /daneharnett
       </SocialLabel>
       <SocialLabel>
-        <YouTubeIcon /> /user/daneharnett
+        <YouTubeIcon /> /daneharnett
       </SocialLabel>
       <SocialLabel>
         <GitHubIcon /> /dane-harnett

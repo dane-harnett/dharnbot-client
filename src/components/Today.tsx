@@ -81,14 +81,10 @@ const Today = () => {
   const currentAgendaItem =
     streamDetails.agenda[streamDetails.currentAgendaItemIndex] ||
     "No topic yet";
-  const nextAgendaItem =
-    streamDetails.agenda[streamDetails.currentAgendaItemIndex + 1] ||
-    "No topic yet";
 
   return (
     <Container>
-      {scheduledStream?.showTitle || "Unscheduled stream"} - {streamTitle} -{" "}
-      {currentAgendaItem} - Up next... {nextAgendaItem}
+      {streamTitle} - {currentAgendaItem}
     </Container>
   );
 };

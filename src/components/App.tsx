@@ -6,6 +6,9 @@ import Socials from "./Socials";
 import AdminScreen from "./AdminScreen";
 import Today from "./Today";
 import TopBar from "./TopBar";
+import SnakeGame from "./SnakeGame/SnakeGame";
+import Leaderboard from "./SnakeGame/Leaderboard";
+import SnakeGameProvider from "./SnakeGame/SnakeGameProvider";
 import TwitchFollowerCount from "./TwitchFollowerCount";
 
 import { createGlobalStyle } from "styled-components";
@@ -33,23 +36,27 @@ const GlobalStyle = createGlobalStyle`
 function App() {
   return (
     <Router>
-      <GlobalStyle />
-      <Switch>
-        <Route path="/admin">
-          <AdminScreen />
-        </Route>
-        <Route path="/">
-          <div className="overlay">
-            <TopBar>
-              <Socials />
-              <TwitchFollowerCount />
-            </TopBar>
-            <BottomBar>
-              <Today />
-            </BottomBar>
-          </div>
-        </Route>
-      </Switch>
+      <SnakeGameProvider>
+        <GlobalStyle />
+        <Switch>
+          <Route path="/admin">
+            <AdminScreen />
+          </Route>
+          <Route path="/">
+            <div className="overlay">
+              <SnakeGame />
+              <TopBar>
+                <Socials />
+                <TwitchFollowerCount />
+              </TopBar>
+              <BottomBar>
+                <Today />
+                <Leaderboard />
+              </BottomBar>
+            </div>
+          </Route>
+        </Switch>
+      </SnakeGameProvider>
     </Router>
   );
 }
