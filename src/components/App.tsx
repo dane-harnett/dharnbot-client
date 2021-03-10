@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
+import MessageProvider from "../messages/MessageProvider";
 import BottomBar from "./BottomBar";
 import Socials from "./Socials";
 import AdminScreen from "./AdminScreen";
@@ -10,6 +11,7 @@ import SnakeGame from "./SnakeGame/SnakeGame";
 import Leaderboard from "./SnakeGame/Leaderboard";
 import SnakeGameProvider from "./SnakeGame/SnakeGameProvider";
 import TwitchFollowerCount from "./TwitchFollowerCount";
+import WebWorks from "./WebWorks/WebWorks";
 
 import { createGlobalStyle } from "styled-components";
 import reset from "styled-reset";
@@ -36,27 +38,30 @@ const GlobalStyle = createGlobalStyle`
 function App() {
   return (
     <Router>
-      <SnakeGameProvider>
-        <GlobalStyle />
-        <Switch>
-          <Route path="/admin">
-            <AdminScreen />
-          </Route>
-          <Route path="/">
-            <div className="overlay">
-              <SnakeGame />
-              <TopBar>
-                <Socials />
-                <TwitchFollowerCount />
-              </TopBar>
-              <BottomBar>
-                <Today />
-                <Leaderboard />
-              </BottomBar>
-            </div>
-          </Route>
-        </Switch>
-      </SnakeGameProvider>
+      <MessageProvider>
+        <SnakeGameProvider>
+          <GlobalStyle />
+          <Switch>
+            <Route path="/admin">
+              <AdminScreen />
+            </Route>
+            <Route path="/">
+              <div className="overlay">
+                <WebWorks />
+                <SnakeGame />
+                <TopBar>
+                  <Socials />
+                  <TwitchFollowerCount />
+                </TopBar>
+                <BottomBar>
+                  <Today />
+                  <Leaderboard />
+                </BottomBar>
+              </div>
+            </Route>
+          </Switch>
+        </SnakeGameProvider>
+      </MessageProvider>
     </Router>
   );
 }

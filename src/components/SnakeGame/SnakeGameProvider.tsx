@@ -1,10 +1,8 @@
 import React, { useEffect, useReducer, useState } from "react";
-
-import { useSocket } from "../../hooks/useSocket";
+import { useMessage } from "../../messages/useMessage";
 import SnakeGameContext from "./SnakeGameContext";
 
 interface Cell {
-
   x: number;
   y: number;
 }
@@ -301,9 +299,7 @@ const reducer = (state: any, action: any) => {
       (snake: any) => snake.isAlive === false
     );
     deadSnakes.forEach((snake: any) => {
-      console.log("snake ded now food?", snake);
       newFood = newFood.concat(snake.cells);
-      console.log("newFood", newFood);
     });
 
     const newFoodSpawnTickCount = state.foodSpawnTickCount + 1;
@@ -333,28 +329,22 @@ const reducer = (state: any, action: any) => {
 const SnakeGameProvider: React.FC = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [visible, setVisible] = useState(true);
-  const socket = useSocket();
 
-  useEffect(() => {
-    socket.on("MESSAGE", (event: any) => {
-      dispatch({
-        type: "MESSAGE",
-        payload: {
-          commandData: event,
-        },
-      });
-      if (event.message.message === "!snake") {
-        setVisible(true);
-      }
-
-      if (event.message.message === "!snake toggle") {
-        setVisible(!visible);
-      }
+  useMessage((event: any) => {
+    dispatch({
+      type: "MESSAGE",
+      payload: {
+        commandData: event,
+      },
     });
-    return () => {
-      socket.removeListener("MESSAGE");
-    };
-  });
+    if (event.message.message === "!snake") {
+      setVisible(true);
+    }
+
+    if (event.message.message === "!snake toggle") {
+      setVisible((currentVisible) => !currentVisible);
+    }
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
