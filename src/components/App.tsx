@@ -11,6 +11,7 @@ import SnakeGame from "./SnakeGame/SnakeGame";
 import Leaderboard from "./SnakeGame/Leaderboard";
 import SnakeGameProvider from "./SnakeGame/SnakeGameProvider";
 import TwitchFollowerCount from "./TwitchFollowerCount";
+import MonsterBattle from "./MonsterBattle/MonsterBattle";
 import WebWorks from "./WebWorks/WebWorks";
 
 import { createGlobalStyle } from "styled-components";
@@ -47,6 +48,7 @@ function App() {
             </Route>
             <Route path="/">
               <div className="overlay">
+                <MonsterBattle />
                 <WebWorks />
                 <SnakeGame />
                 <TopBar>
