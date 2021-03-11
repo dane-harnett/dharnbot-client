@@ -173,7 +173,7 @@ const MonsterBattle = () => {
               height: 300,
             }}
           >
-            <MonsterName monster={state.currentMonster} />
+            <MonsterName>{state.currentMonster.name}</MonsterName>
             <HealthBar
               health={state.currentMonster.health}
               maxHealth={state.currentMonster.maxHealth}

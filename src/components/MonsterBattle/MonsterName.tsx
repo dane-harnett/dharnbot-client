@@ -1,25 +1,12 @@
-import * as React from "react";
-import { Monster } from "./MonsterBattle";
+import styled from "styled-components";
 
-interface MonsterNameProps {
-  monster: Monster;
-}
-
-const MonsterName = ({ monster }: MonsterNameProps): JSX.Element => {
-  return (
-    <div
-      style={{
-        backgroundColor: "black",
-        color: "white",
-        fontSize: "20px",
-        marginTop: 4,
-        padding: 4,
-        textTransform: "uppercase",
-      }}
-    >
-      {monster.name}
-    </div>
-  );
-};
+const MonsterName = styled.div`
+  background-color: black;
+  color: white;
+  font-size: 20px;
+  margin-top: 4px;
+  padding: 4px;
+  text-transform: uppercase;
+`;
 
 export default MonsterName;
