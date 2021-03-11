@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import React, { useEffect, useReducer } from "react";
 
 import { useMessage } from "../../messages/useMessage";
 import HealthBar from "./HealthBar";
@@ -31,22 +31,40 @@ interface State {
   currentMonster: Monster | null;
 }
 
-interface EncounterAction {
-  type: "ENCOUNTER";
+interface MessageAction {
+  type: "MESSAGE";
 }
-
 interface AttackAction {
   type: "ATTACK";
 }
+interface MonsterKilledAction {
+  type: "MONSTER_KILLED";
+}
+interface ManualSpawnAction {
+  type: "MANUAL_SPAWN";
+}
 
-type Action = EncounterAction | AttackAction;
+type Action =
+  | MessageAction
+  | AttackAction
+  | MonsterKilledAction
+  | ManualSpawnAction;
+
+const MESSAGE_ENCOUNTER_RATE = 0.09;
 
 const reducer = (state: State, action: Action) => {
   switch (action.type) {
-    case "ENCOUNTER":
+    case "MESSAGE":
       if (state.currentMonster !== null) {
         return state;
       }
+
+      const triggerEncounter = Math.random() <= MESSAGE_ENCOUNTER_RATE;
+
+      if (!triggerEncounter) {
+        return state;
+      }
+
       return {
         ...state,
         currentMonster: { ...monsters.dan_hornet },
@@ -55,11 +73,8 @@ const reducer = (state: State, action: Action) => {
       if (state.currentMonster === null) {
         return state;
       }
-      if (state.currentMonster.health - 1 === 0) {
-        return {
-          ...state,
-          currentMonster: null,
-        };
+      if (state.currentMonster.health - 1 < 0) {
+        return state;
       }
       return {
         ...state,
@@ -67,6 +82,20 @@ const reducer = (state: State, action: Action) => {
           ...state.currentMonster,
           health: state.currentMonster.health - 1,
         },
+      };
+    case "MONSTER_KILLED":
+      return {
+        ...state,
+        currentMonster: null,
+      };
+    case "MANUAL_SPAWN":
+      if (state.currentMonster !== null) {
+        return state;
+      }
+
+      return {
+        ...state,
+        currentMonster: { ...monsters.dan_hornet },
       };
     default:
       return state;
@@ -77,14 +106,26 @@ const MonsterBattle = () => {
   const [state, dispatch] = useReducer(reducer, { currentMonster: null });
 
   useMessage((event: any) => {
-    if (["!encounter", "!enc"].includes(event.message.message.toLowerCase())) {
-      dispatch({ type: "ENCOUNTER" });
-    }
+    const msg = event.message.message.toLowerCase();
 
-    if (["!attack", "!e1"].includes(event.message.message.toLowerCase())) {
+    const isBroadcaster = event.message.context.badges?.broadcaster === "1";
+
+    if (["!attack", "!e1"].includes(msg)) {
       dispatch({ type: "ATTACK" });
+    } else if (["!monsterplz"].includes(msg) && isBroadcaster) {
+      dispatch({ type: "MANUAL_SPAWN" });
+    } else if (event.message.message[0] !== "!") {
+      dispatch({ type: "MESSAGE" });
     }
   }, []);
+
+  useEffect(() => {
+    if (state.currentMonster && state.currentMonster.health === 0) {
+      setTimeout(() => {
+        dispatch({ type: "MONSTER_KILLED" });
+      }, 1000);
+    }
+  }, [state.currentMonster]);
 
   if (state.currentMonster === null) {
     return null;
@@ -137,7 +178,11 @@ const MonsterBattle = () => {
               health={state.currentMonster.health}
               maxHealth={state.currentMonster.maxHealth}
             />
-            <MonsterImage id={state.currentMonster.id} />
+            {state.currentMonster.health <= 0 ? (
+              <img src={"/assets/monster-battle/tenor.gif"} />
+            ) : (
+              <MonsterImage id={state.currentMonster.id} />
+            )}
             <MonsterInfo monster={state.currentMonster} />
           </div>
         </div>
