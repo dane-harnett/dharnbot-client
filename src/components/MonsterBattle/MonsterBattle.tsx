@@ -1,4 +1,5 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect, useReducer, useRef } from "react";
+import styled from "styled-components";
 
 import { useMessage } from "../../messages/useMessage";
 import HealthBar from "./HealthBar";
@@ -27,15 +28,22 @@ export interface Monster {
   name: string;
 }
 
+interface Channel {
+  health: number;
+  maxHealth: number;
+}
+
 interface State {
+  channel: Channel | null;
   currentMonster: Monster | null;
+  encounterStatus: string;
 }
 
 interface MessageAction {
   type: "MESSAGE";
 }
-interface AttackAction {
-  type: "ATTACK";
+interface ChatAttackAction {
+  type: "CHAT_ATTACK";
 }
 interface MonsterKilledAction {
   type: "MONSTER_KILLED";
@@ -43,19 +51,31 @@ interface MonsterKilledAction {
 interface ManualSpawnAction {
   type: "MANUAL_SPAWN";
 }
+interface ManualMonsterDeathAction {
+  type: "MANUAL_MONSTER_DEATH";
+}
+interface ResetAction {
+  type: "RESET";
+}
+interface MonsterAttackAction {
+  type: "MONSTER_ATTACK";
+}
 
 type Action =
+  | ChatAttackAction
+  | ManualMonsterDeathAction
+  | ManualSpawnAction
   | MessageAction
-  | AttackAction
+  | MonsterAttackAction
   | MonsterKilledAction
-  | ManualSpawnAction;
+  | ResetAction;
 
 const MESSAGE_ENCOUNTER_RATE = 0.09;
 
 const reducer = (state: State, action: Action) => {
   switch (action.type) {
     case "MESSAGE":
-      if (state.currentMonster !== null) {
+      if (state.encounterStatus !== "IDLE") {
         return state;
       }
 
@@ -68,13 +88,21 @@ const reducer = (state: State, action: Action) => {
       return {
         ...state,
         currentMonster: { ...monsters.dan_hornet },
+        channel: { health: 100, maxHealth: 100 },
+        encounterStatus: "ACTIVE",
       };
-    case "ATTACK":
+    case "CHAT_ATTACK":
+      if (state.encounterStatus !== "ACTIVE") {
+        return state;
+      }
       if (state.currentMonster === null) {
         return state;
       }
-      if (state.currentMonster.health - 1 < 0) {
-        return state;
+      if (state.currentMonster.health - 1 === 0) {
+        return {
+          ...state,
+          encounterStatus: "SUCCESS",
+        };
       }
       return {
         ...state,
@@ -83,27 +111,74 @@ const reducer = (state: State, action: Action) => {
           health: state.currentMonster.health - 1,
         },
       };
-    case "MONSTER_KILLED":
+    case "MONSTER_ATTACK":
+      if (state.encounterStatus !== "ACTIVE") {
+        return state;
+      }
+      if (state.channel === null) {
+        return state;
+      }
+      if (state.channel.health - 1 === 0) {
+        return {
+          ...state,
+          encounterStatus: "FAIL",
+        };
+      }
       return {
         ...state,
-        currentMonster: null,
+        channel: {
+          ...state.channel,
+          health: state.channel.health - 1,
+        },
       };
     case "MANUAL_SPAWN":
-      if (state.currentMonster !== null) {
+      if (state.encounterStatus !== "IDLE") {
         return state;
       }
 
       return {
         ...state,
         currentMonster: { ...monsters.dan_hornet },
+        channel: { health: 100, maxHealth: 100 },
+        encounterStatus: "ACTIVE",
+      };
+    case "MANUAL_MONSTER_DEATH":
+      if (state.encounterStatus !== "ACTIVE") {
+        return state;
+      }
+
+      return {
+        ...state,
+        encounterStatus: "SUCCESS",
+      };
+    case "RESET":
+      return {
+        ...state,
+        currentMonster: null,
+        channel: null,
+        encounterStatus: "IDLE",
       };
     default:
       return state;
   }
 };
 
+const GameContainer = styled.div`
+  position: fixed;
+  top: 50px;
+  left: 0;
+  width: 100vw;
+  height: calc(100vh - 100px);
+  z-index: 99;
+`;
+
 const MonsterBattle = () => {
-  const [state, dispatch] = useReducer(reducer, { currentMonster: null });
+  const [state, dispatch] = useReducer(reducer, {
+    channel: null,
+    currentMonster: null,
+    encounterStatus: "IDLE",
+  });
+  const monsterAttackRef = useRef<ReturnType<typeof setInterval>>(null!);
 
   useMessage((event: any) => {
     const msg = event.message.message.toLowerCase();
@@ -111,84 +186,134 @@ const MonsterBattle = () => {
     const isBroadcaster = event.message.context.badges?.broadcaster === "1";
 
     if (["!attack", "!e1"].includes(msg)) {
-      dispatch({ type: "ATTACK" });
+      dispatch({ type: "CHAT_ATTACK" });
     } else if (["!monsterplz"].includes(msg) && isBroadcaster) {
       dispatch({ type: "MANUAL_SPAWN" });
+    } else if (["!monstergo"].includes(msg) && isBroadcaster) {
+      dispatch({ type: "MANUAL_MONSTER_DEATH" });
     } else if (event.message.message[0] !== "!") {
       dispatch({ type: "MESSAGE" });
     }
   }, []);
 
   useEffect(() => {
-    if (state.currentMonster && state.currentMonster.health === 0) {
+    if (state.encounterStatus === "SUCCESS") {
       setTimeout(() => {
-        dispatch({ type: "MONSTER_KILLED" });
+        dispatch({ type: "RESET" });
       }, 1000);
     }
-  }, [state.currentMonster]);
+    if (state.encounterStatus === "ACTIVE") {
+      monsterAttackRef.current = setInterval(() => {
+        dispatch({ type: "MONSTER_ATTACK" });
+      }, 2000);
+    }
+    if (
+      state.encounterStatus === "SUCCESS" ||
+      state.encounterStatus === "FAIL"
+    ) {
+      clearInterval(monsterAttackRef.current);
+    }
+  }, [state.encounterStatus]);
 
-  if (state.currentMonster === null) {
+  if (state.channel === null || state.currentMonster === null) {
     return null;
   }
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        width: "100vw",
-        height: "100vh",
-        zIndex: 99,
-      }}
-    >
+    <GameContainer>
       <div
         style={{
-          alignItems: "center",
+          alignItems: "stretch",
           display: "flex",
-          height: "100vh",
-          justifyContent: "center",
-          width: "100vw",
+          height: "100%",
+          justifyContent: "stretch",
+          width: "100%",
         }}
       >
         <div
           style={{
-            backgroundColor: "black",
-            borderRadius: "50%",
-            width: 500,
-            height: 500,
-            alignItems: "center",
+            alignItems: "stretch",
             display: "flex",
             flexDirection: "column",
-            justifyContent: "center",
+            justifyContent: "stretch",
+            width: 1520,
           }}
         >
           <div
             style={{
-              alignItems: "stretch",
+              alignItems: "center",
               display: "flex",
-              flexDirection: "column",
               justifyContent: "center",
-              width: 300,
-              height: 300,
+              height: "100%",
             }}
           >
-            <MonsterName>{state.currentMonster.name}</MonsterName>
+            <div
+              style={{
+                backgroundColor: "black",
+                borderRadius: "50%",
+                width: 500,
+                height: 500,
+                alignItems: "center",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+              }}
+            >
+              <div
+                style={{
+                  alignItems: "stretch",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  width: 300,
+                  height: 300,
+                }}
+              >
+                <MonsterName>{state.currentMonster.name}</MonsterName>
+                <HealthBar
+                  health={state.currentMonster.health}
+                  maxHealth={state.currentMonster.maxHealth}
+                />
+                {state.encounterStatus === "SUCCESS" ? (
+                  <img src={"/assets/monster-battle/tenor.gif"} />
+                ) : (
+                  <MonsterImage id={state.currentMonster.id} />
+                )}
+                <MonsterInfo monster={state.currentMonster} />
+              </div>
+            </div>
+          </div>
+          <div
+            style={{
+              padding: 24,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 48,
+                backgroundColor: "black",
+                color: "white",
+                display: "inline-block",
+                padding: 4,
+              }}
+            >
+              Channel HP
+            </div>
             <HealthBar
-              health={state.currentMonster.health}
-              maxHealth={state.currentMonster.maxHealth}
+              health={state.channel.health}
+              maxHealth={state.channel.maxHealth}
             />
-            {state.currentMonster.health <= 0 ? (
-              <img src={"/assets/monster-battle/tenor.gif"} />
-            ) : (
-              <MonsterImage id={state.currentMonster.id} />
-            )}
-            <MonsterInfo monster={state.currentMonster} />
           </div>
         </div>
+        <div
+          style={{
+            width: 400,
+          }}
+        >
+          <EncounterInstructions />
+        </div>
       </div>
-      <EncounterInstructions />
-    </div>
+    </GameContainer>
   );
 };
 

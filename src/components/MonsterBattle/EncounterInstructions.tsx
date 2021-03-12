@@ -6,13 +6,8 @@ const EncounterInstructions = () => {
       style={{
         backgroundColor: "black",
         color: "white",
-        fontSize: "20px",
-        marginTop: 4,
+        fontSize: "50px",
         padding: 4,
-        position: "absolute",
-        top: 571,
-        right: 0,
-        width: 390,
       }}
     >
       Instructions:
