@@ -88,7 +88,7 @@ const reducer = (state: State, action: Action) => {
       return {
         ...state,
         currentMonster: { ...monsters.dan_hornet },
-        channel: { health: 100, maxHealth: 100 },
+        channel: { health: 10, maxHealth: 10 },
         encounterStatus: "ACTIVE",
       };
     case "CHAT_ATTACK":
@@ -98,18 +98,14 @@ const reducer = (state: State, action: Action) => {
       if (state.currentMonster === null) {
         return state;
       }
-      if (state.currentMonster.health - 1 === 0) {
-        return {
-          ...state,
-          encounterStatus: "SUCCESS",
-        };
-      }
       return {
         ...state,
         currentMonster: {
           ...state.currentMonster,
           health: state.currentMonster.health - 1,
         },
+        encounterStatus:
+          state.currentMonster.health - 1 === 0 ? "SUCCESS" : "ACTIVE",
       };
     case "MONSTER_ATTACK":
       if (state.encounterStatus !== "ACTIVE") {
@@ -118,18 +114,13 @@ const reducer = (state: State, action: Action) => {
       if (state.channel === null) {
         return state;
       }
-      if (state.channel.health - 1 === 0) {
-        return {
-          ...state,
-          encounterStatus: "FAIL",
-        };
-      }
       return {
         ...state,
         channel: {
           ...state.channel,
           health: state.channel.health - 1,
         },
+        encounterStatus: state.channel.health - 1 === 0 ? "FAIL" : "ACTIVE",
       };
     case "MANUAL_SPAWN":
       if (state.encounterStatus !== "IDLE") {
@@ -139,7 +130,7 @@ const reducer = (state: State, action: Action) => {
       return {
         ...state,
         currentMonster: { ...monsters.dan_hornet },
-        channel: { health: 100, maxHealth: 100 },
+        channel: { health: 10, maxHealth: 10 },
         encounterStatus: "ACTIVE",
       };
     case "MANUAL_MONSTER_DEATH":
@@ -149,6 +140,10 @@ const reducer = (state: State, action: Action) => {
 
       return {
         ...state,
+        currentMonster: {
+          ...state.currentMonster,
+          health: 0,
+        },
         encounterStatus: "SUCCESS",
       };
     case "RESET":
@@ -185,7 +180,7 @@ const MonsterBattle = () => {
 
     const isBroadcaster = event.message.context.badges?.broadcaster === "1";
 
-    if (["!attack", "!e1"].includes(msg)) {
+    if (msg.indexOf("!attack") === 0 || msg.indexOf("!e1") === 0) {
       dispatch({ type: "CHAT_ATTACK" });
     } else if (["!monsterplz"].includes(msg) && isBroadcaster) {
       dispatch({ type: "MANUAL_SPAWN" });
@@ -197,11 +192,6 @@ const MonsterBattle = () => {
   }, []);
 
   useEffect(() => {
-    if (state.encounterStatus === "SUCCESS") {
-      setTimeout(() => {
-        dispatch({ type: "RESET" });
-      }, 1000);
-    }
     if (state.encounterStatus === "ACTIVE") {
       monsterAttackRef.current = setInterval(() => {
         dispatch({ type: "MONSTER_ATTACK" });
@@ -212,6 +202,9 @@ const MonsterBattle = () => {
       state.encounterStatus === "FAIL"
     ) {
       clearInterval(monsterAttackRef.current);
+      setTimeout(() => {
+        dispatch({ type: "RESET" });
+      }, 1000);
     }
   }, [state.encounterStatus]);
 
