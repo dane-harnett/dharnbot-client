@@ -86,7 +86,6 @@ const reducer = (state: State, action: Action) => {
       }
 
       return {
-        ...state,
         currentMonster: { ...monsters.dan_hornet },
         channel: { health: 10, maxHealth: 10 },
         encounterStatus: "ACTIVE",
@@ -128,13 +127,16 @@ const reducer = (state: State, action: Action) => {
       }
 
       return {
-        ...state,
         currentMonster: { ...monsters.dan_hornet },
         channel: { health: 10, maxHealth: 10 },
         encounterStatus: "ACTIVE",
       };
     case "MANUAL_MONSTER_DEATH":
       if (state.encounterStatus !== "ACTIVE") {
+        return state;
+      }
+
+      if (state.currentMonster === null) {
         return state;
       }
 
@@ -148,7 +150,6 @@ const reducer = (state: State, action: Action) => {
       };
     case "RESET":
       return {
-        ...state,
         currentMonster: null,
         channel: null,
         encounterStatus: "IDLE",
@@ -268,7 +269,7 @@ const MonsterBattle = () => {
                   maxHealth={state.currentMonster.maxHealth}
                 />
                 {state.encounterStatus === "SUCCESS" ? (
-                  <img src={"/assets/monster-battle/tenor.gif"} />
+                  <img src="/assets/monster-battle/tenor.gif" alt="" />
                 ) : (
                   <MonsterImage id={state.currentMonster.id} />
                 )}
