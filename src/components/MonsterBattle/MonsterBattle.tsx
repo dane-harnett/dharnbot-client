@@ -63,52 +63,62 @@ const MonsterBattle = () => {
               width: 1520,
             }}
           >
-            <div
-              style={{
-                alignItems: "center",
-                display: "flex",
-                justifyContent: "center",
-                height: "100%",
-              }}
-            >
+            {current.matches("fail") ? (
+              <div>
+                <img
+                  style={{ width: "100%", height: "100%" }}
+                  src="/assets/monster-battle/game-over.gif"
+                  alt=""
+                />
+              </div>
+            ) : (
               <div
                 style={{
-                  backgroundColor: "black",
-                  borderRadius: "50%",
-                  width: 500,
-                  height: 500,
                   alignItems: "center",
                   display: "flex",
-                  flexDirection: "column",
                   justifyContent: "center",
+                  height: "100%",
                 }}
               >
                 <div
                   style={{
-                    alignItems: "stretch",
+                    backgroundColor: "black",
+                    borderRadius: "50%",
+                    width: 500,
+                    height: 500,
+                    alignItems: "center",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "center",
-                    width: 300,
-                    height: 300,
                   }}
                 >
-                  <MonsterName>
-                    {current.context.currentMonster.name}
-                  </MonsterName>
-                  <HealthBar
-                    health={current.context.currentMonster.health}
-                    maxHealth={current.context.currentMonster.maxHealth}
-                  />
-                  {current.matches("success") ? (
-                    <img src="/assets/monster-battle/tenor.gif" alt="" />
-                  ) : (
-                    <MonsterImage id={current.context.currentMonster.id} />
-                  )}
-                  <MonsterInfo monster={current.context.currentMonster} />
+                  <div
+                    style={{
+                      alignItems: "stretch",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "center",
+                      width: 300,
+                      height: 300,
+                    }}
+                  >
+                    <MonsterName>
+                      {current.context.currentMonster.name}
+                    </MonsterName>
+                    <HealthBar
+                      health={current.context.currentMonster.health}
+                      maxHealth={current.context.currentMonster.maxHealth}
+                    />
+                    {current.matches("success") ? (
+                      <img src="/assets/monster-battle/tenor.gif" alt="" />
+                    ) : (
+                      <MonsterImage id={current.context.currentMonster.id} />
+                    )}
+                    <MonsterInfo monster={current.context.currentMonster} />
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
             <div
               style={{
                 padding: 24,

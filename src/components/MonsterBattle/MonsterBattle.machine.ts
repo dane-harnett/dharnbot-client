@@ -134,7 +134,7 @@ const monsterBattleMachine = createMachine<Context, Event, State>(
       },
       fail: {
         after: {
-          1000: "idle",
+          3000: "idle",
         },
       },
     },
