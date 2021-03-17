@@ -19,11 +19,8 @@ interface Context {
   currentMonster: Monster | null;
 }
 
-interface MessageEvent {
-  type: "MESSAGE";
-}
 type Event =
-  | MessageEvent
+  | { type: "MESSAGE" }
   | { type: "CHAT_ATTACK" }
   | { type: "MONSTER_ATTACK" }
   | { type: "MANUAL_SPAWN" }
@@ -33,6 +30,7 @@ type IdleContext = Context & {
   channel: null;
   currentMonster: null;
 };
+
 type ActiveContext = Context & {
   channel: Channel;
   currentMonster: Monster;
@@ -48,12 +46,13 @@ type State =
       context: ActiveContext;
     }
   | {
-      value: "chatAttack";
+      value: "success";
       context: ActiveContext;
     }
-  | { value: "monsterAttack"; context: ActiveContext }
-  | { value: "success"; context: ActiveContext }
-  | { value: "fail"; context: ActiveContext };
+  | {
+      value: "fail";
+      context: ActiveContext;
+    };
 
 const monsters: Record<string, Monster> = {
   dan_hornet: {
@@ -108,8 +107,9 @@ const monsterBattleMachine = createMachine<Context, Event, State>(
               actions: "attackMonster",
             },
             {
-              target: "chatAttack",
+              target: "active",
               actions: "attackMonster",
+              internal: false,
             },
           ],
           MONSTER_ATTACK: [
@@ -119,21 +119,12 @@ const monsterBattleMachine = createMachine<Context, Event, State>(
               actions: "attackChannel",
             },
             {
-              target: "monsterAttack",
+              target: "active",
               actions: "attackChannel",
+              internal: false,
             },
           ],
           MANUAL_MONSTER_DEATH: "idle",
-        },
-      },
-      chatAttack: {
-        after: {
-          10: "active",
-        },
-      },
-      monsterAttack: {
-        after: {
-          10: "active",
         },
       },
       success: {
@@ -181,17 +172,17 @@ const monsterBattleMachine = createMachine<Context, Event, State>(
       }),
     },
     guards: {
-      channelDead: (ctx: Context) => {
-        if (ctx.channel === null) {
+      channelDead: ({ channel }) => {
+        if (channel === null) {
           return false;
         }
-        return ctx.channel.health - 1 === 0;
+        return channel.health - 1 === 0;
       },
-      monsterDead: (ctx: Context) => {
-        if (ctx.currentMonster === null) {
+      monsterDead: ({ currentMonster }) => {
+        if (currentMonster === null) {
           return false;
         }
-        return ctx.currentMonster.health - 1 === 0;
+        return currentMonster.health - 1 === 0;
       },
       triggerEncounter: () => {
         return Math.random() <= 0.5;

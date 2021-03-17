@@ -40,8 +40,6 @@ const MonsterBattle = () => {
 
   if (
     current.matches("active") ||
-    current.matches("chatAttack") ||
-    current.matches("monsterAttack") ||
     current.matches("success") ||
     current.matches("fail")
   ) {
