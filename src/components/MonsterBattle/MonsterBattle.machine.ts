@@ -14,26 +14,39 @@ interface Channel {
   maxHealth: number;
 }
 
+interface User {
+  login: string;
+  profile_image_url: string;
+}
+
 interface Context {
   channel: Channel | null;
   currentMonster: Monster | null;
+  currentAttackers: User[] | null;
 }
 
 type Event =
   | { type: "MESSAGE" }
-  | { type: "CHAT_ATTACK" }
-  | { type: "MONSTER_ATTACK" }
+  | {
+      type: "CHAT_ATTACK";
+      payload: {
+        user: User;
+      };
+    }
   | { type: "MANUAL_SPAWN" }
-  | { type: "MANUAL_MONSTER_DEATH" };
+  | { type: "MANUAL_MONSTER_DEATH" }
+  | { type: "TICK" };
 
 type IdleContext = Context & {
   channel: null;
   currentMonster: null;
+  currentAttackers: null;
 };
 
 type ActiveContext = Context & {
   channel: Channel;
   currentMonster: Monster;
+  currentAttackers: User[];
 };
 
 type State =
@@ -54,12 +67,16 @@ type State =
       context: ActiveContext;
     };
 
+const baseChannel = {
+  health: 30,
+  maxHealth: 30,
+};
 const monsters: Record<string, Monster> = {
   dan_hornet: {
     id: "dan_hornet",
     name: "Dan Hornet",
-    health: 5,
-    maxHealth: 5,
+    health: 45,
+    maxHealth: 45,
     description: "Watch out you might get stung!",
     credits: "Artwork courtesy of RetroMMO and fruloo",
   },
@@ -71,6 +88,7 @@ const monsterBattleMachine = createMachine<Context, Event, State>(
     context: {
       channel: null,
       currentMonster: null,
+      currentAttackers: null,
     },
     states: {
       idle: {
@@ -92,47 +110,46 @@ const monsterBattleMachine = createMachine<Context, Event, State>(
         },
       },
       active: {
+        onEntry: "tick",
         invoke: {
           id: "incInterval",
           src: () => (callback) => {
-            const id = setInterval(() => callback("MONSTER_ATTACK"), 2500);
+            const id = setInterval(() => callback("TICK"), 1000);
             return () => clearInterval(id);
           },
         },
         on: {
-          CHAT_ATTACK: [
+          TICK: [
             {
               target: "success",
               cond: { type: "monsterDead" },
-              actions: "attackMonster",
             },
-            {
-              target: "active",
-              actions: "attackMonster",
-              internal: false,
-            },
-          ],
-          MONSTER_ATTACK: [
             {
               target: "fail",
               cond: { type: "channelDead" },
-              actions: "attackChannel",
             },
             {
               target: "active",
-              actions: "attackChannel",
               internal: false,
+            },
+          ],
+          CHAT_ATTACK: [
+            {
+              target: "active",
+              actions: "addAttacker",
             },
           ],
           MANUAL_MONSTER_DEATH: "idle",
         },
       },
       success: {
+        onEntry: "tick",
         after: {
           1000: "idle",
         },
       },
       fail: {
+        onEntry: "tick",
         after: {
           3000: "idle",
         },
@@ -141,35 +158,52 @@ const monsterBattleMachine = createMachine<Context, Event, State>(
   },
   {
     actions: {
-      startEncounter: assign({
-        currentMonster: { ...monsters.dan_hornet },
-        channel: {
-          health: 30,
-          maxHealth: 30,
-        },
-      } as Context),
-      attackChannel: assign({
+      tick: assign({
         channel: ({ channel }) => {
           if (channel === null) {
-            return null;
+            return channel;
           }
           return {
             ...channel,
             health: channel.health - 1,
           };
         },
-      }),
-      attackMonster: assign({
-        currentMonster: ({ currentMonster }) => {
-          if (currentMonster === null) {
-            return null;
+        currentMonster: ({ currentMonster, currentAttackers }) => {
+          if (currentMonster === null || currentAttackers === null) {
+            return currentMonster;
           }
           return {
             ...currentMonster,
-            health: currentMonster.health - 1,
+            health: currentMonster.health - currentAttackers.length,
           };
         },
       }),
+      addAttacker: assign({
+        currentAttackers: ({ currentAttackers }, evt) => {
+          if (currentAttackers === null) {
+            return null;
+          }
+          if (evt.type === "CHAT_ATTACK") {
+            const existingAttacker = currentAttackers.find((user) => {
+              return user.login === evt.payload.user.login;
+            });
+            if (existingAttacker) {
+              return currentAttackers;
+            }
+            return currentAttackers.concat([evt.payload.user]);
+          }
+          return currentAttackers;
+        },
+      }),
+      startEncounter: assign({
+        currentAttackers: [],
+        currentMonster: {
+          ...monsters.dan_hornet,
+        },
+        channel: {
+          ...baseChannel,
+        },
+      } as Context),
     },
     guards: {
       channelDead: ({ channel }) => {
@@ -178,14 +212,14 @@ const monsterBattleMachine = createMachine<Context, Event, State>(
         }
         return channel.health - 1 === 0;
       },
-      monsterDead: ({ currentMonster }) => {
-        if (currentMonster === null) {
+      monsterDead: ({ currentMonster, currentAttackers }) => {
+        if (currentMonster === null || currentAttackers === null) {
           return false;
         }
-        return currentMonster.health - 1 === 0;
+        return currentMonster.health - currentAttackers.length <= 0;
       },
       triggerEncounter: () => {
-        return Math.random() <= 0.5;
+        return Math.random() <= 0.05;
       },
     },
   }

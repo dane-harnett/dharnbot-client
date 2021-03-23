@@ -28,7 +28,12 @@ const MonsterBattle = () => {
     const isBroadcaster = event.message.context.badges?.broadcaster === "1";
 
     if (msg.indexOf("!attack") === 0 || msg.indexOf("!e1") === 0) {
-      send("CHAT_ATTACK");
+      send({
+        type: "CHAT_ATTACK",
+        payload: {
+          user: event.user,
+        },
+      });
     } else if (["!monsterplz"].includes(msg) && isBroadcaster) {
       send("MANUAL_SPAWN");
     } else if (["!monstergo"].includes(msg) && isBroadcaster) {
@@ -133,7 +138,14 @@ const MonsterBattle = () => {
                   padding: 4,
                 }}
               >
-                Channel HP
+                Channel HP: (
+                {current.context.currentAttackers.map((u) => (
+                  <img
+                    src={u.profile_image_url}
+                    style={{ width: 48, height: 48 }}
+                  />
+                ))}
+                )
               </div>
               <HealthBar
                 health={current.context.channel.health}

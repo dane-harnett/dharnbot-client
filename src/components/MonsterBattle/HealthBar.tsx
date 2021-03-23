@@ -6,7 +6,8 @@ interface HealthBarProps {
 }
 
 const HealthBar = ({ health, maxHealth }: HealthBarProps): JSX.Element => {
-  const healthPercent = Math.floor((health / maxHealth) * 100);
+  const normalizedHealth = health < 0 ? 0 : health;
+  const healthPercent = Math.floor((normalizedHealth / maxHealth) * 100);
   return (
     <div
       style={{
