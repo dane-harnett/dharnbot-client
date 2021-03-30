@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Monster } from "./MonsterBattle.machine";
+import type { Monster } from "./MonsterBattle.machine";
 
 interface MonsterInfoProps {
   monster: Monster;
