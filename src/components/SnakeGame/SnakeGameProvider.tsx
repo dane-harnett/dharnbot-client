@@ -41,7 +41,7 @@ const dontReverseDirection = (current: any) => (d: string) => {
   }
   return true;
 };
-const isDontWrapAroundEnabled = false;
+const isDontWrapAroundEnabled = true;
 const dontWrapAround = (current: any) => (d: string) => {
   if (!isDontWrapAroundEnabled) {
     return true;
@@ -61,6 +61,7 @@ const dontWrapAround = (current: any) => (d: string) => {
   return true;
 };
 
+const isCanSlitherOverSelfEnabled = false;
 const dontRunIntoAnotherSnake = (current: any, snakes: any[]) => (
   d: "up" | "down" | "left" | "right"
 ) => {
@@ -88,7 +89,10 @@ const dontRunIntoAnotherSnake = (current: any, snakes: any[]) => (
   const newHead = movement[d];
 
   const isAnotherSnakeInDirection = !!snakes.find((snake: any) => {
-    if (snake.user.login === current.user.login) {
+    if (
+      isCanSlitherOverSelfEnabled &&
+      snake.user.login === current.user.login
+    ) {
       return false;
     }
     return snake.cells.find((cell: any) => {
@@ -222,15 +226,22 @@ const reducer = (state: any, action: any) => {
           .filter(dontRunIntoAnotherSnake(current, newSnakes));
 
         // if there is food in the current.direction
-        //and we can continue in that direction
+        // and we can continue in that direction
         // then continue in that direction
 
         const isFoodInCurrentDirection = !!state.food.find((food: any) => {
-          if (current.direction === "up" || current.direction === "down") {
-            return food.x === current.cells[0].x;
+          const head = current.cells[0];
+          if (current.direction === "up") {
+            return food.x === head.x && food.y < head.y;
           }
-          if (current.direction === "left" || current.direction === "right") {
-            return food.y === current.cells[0].y;
+          if (current.direction === "left") {
+            return food.y === head.y && food.x < head.x;
+          }
+          if (current.direction === "down") {
+            return food.x === head.x && food.y > head.y;
+          }
+          if (current.direction === "right") {
+            return food.y === head.y && food.x > head.x;
           }
           return false;
         });
