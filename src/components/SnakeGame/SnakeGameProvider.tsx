@@ -2,28 +2,54 @@ import React, { useEffect, useReducer, useState } from "react";
 import { useMessage } from "../../messages/useMessage";
 import SnakeGameContext from "./SnakeGameContext";
 
+type Direction = "up" | "down" | "left" | "right";
+
 interface Cell {
   x: number;
   y: number;
 }
 
+interface Snake {
+  cells: Cell[];
+  direction: Direction;
+  isAlive: boolean;
+  speed: number;
+  user: {
+    login: string;
+  };
+  tickCount: number;
+}
+
+interface Food {
+  x: number;
+  y: number;
+  ticksSinceSpawn: number;
+}
+
+interface State {
+  foodSpawnTickCount: number;
+  food: Food[];
+  snakes: Snake[];
+}
+
 const CELL_SIZE = 30;
 const CANVAS_WIDTH = 1920 / CELL_SIZE;
 const CANVAS_HEIGHT = 1080 / CELL_SIZE;
-const DIRECTIONS = ["up", "down", "left", "right"];
+const DIRECTIONS: Direction[] = ["up", "down", "left", "right"];
 const TICK_DURATION = 50;
 const TICK_FOOD_SPAWN_COUNT = 1000 / TICK_DURATION;
+const TICKS_TIL_FOOD_SPOILS = 200;
 
 const getRandomItem = (arr: any) => arr[Math.floor(Math.random() * arr.length)];
 
-const initialState = {
+const initialState: State = {
   foodSpawnTickCount: 0,
   food: [],
   snakes: [],
 };
 
 const isDontReverseDirectionEnabled = true;
-const dontReverseDirection = (current: any) => (d: string) => {
+const dontReverseDirection = (current: Snake) => (d: Direction) => {
   if (!isDontReverseDirectionEnabled) {
     return true;
   }
@@ -42,7 +68,7 @@ const dontReverseDirection = (current: any) => (d: string) => {
   return true;
 };
 const isDontWrapAroundEnabled = true;
-const dontWrapAround = (current: any) => (d: string) => {
+const dontWrapAround = (current: Snake) => (d: Direction) => {
   if (!isDontWrapAroundEnabled) {
     return true;
   }
@@ -62,8 +88,8 @@ const dontWrapAround = (current: any) => (d: string) => {
 };
 
 const isCanSlitherOverSelfEnabled = false;
-const dontRunIntoAnotherSnake = (current: any, snakes: any[]) => (
-  d: "up" | "down" | "left" | "right"
+const dontRunIntoAnotherSnake = (current: Snake, snakes: Snake[]) => (
+  d: Direction
 ) => {
   const headCell: Cell = current.cells[0];
 
@@ -88,14 +114,14 @@ const dontRunIntoAnotherSnake = (current: any, snakes: any[]) => (
 
   const newHead = movement[d];
 
-  const isAnotherSnakeInDirection = !!snakes.find((snake: any) => {
+  const isAnotherSnakeInDirection = !!snakes.find((snake: Snake) => {
     if (
       isCanSlitherOverSelfEnabled &&
       snake.user.login === current.user.login
     ) {
       return false;
     }
-    return snake.cells.find((cell: any) => {
+    return snake.cells.find((cell: Cell) => {
       return cell.x === newHead.x && cell.y === newHead.y;
     });
   });
@@ -103,7 +129,7 @@ const dontRunIntoAnotherSnake = (current: any, snakes: any[]) => (
   return !isAnotherSnakeInDirection;
 };
 
-const reducer = (state: any, action: any) => {
+const reducer = (state: State, action: any) => {
   if (
     action.type === "MESSAGE" &&
     (action.payload.commandData.message.context.badges?.broadcaster === "1" ||
@@ -114,7 +140,7 @@ const reducer = (state: any, action: any) => {
       "!snake remove ",
       ""
     );
-    const newSnakes = state.snakes.filter((snake: any) => {
+    const newSnakes = state.snakes.filter((snake: Snake) => {
       return !(
         snake.user.login.toLowerCase() === usernameSnakeToRemove.toLowerCase()
       );
@@ -180,7 +206,8 @@ const reducer = (state: any, action: any) => {
     action.payload.commandData.message.message === "!snake"
   ) {
     const userSnakes = state.snakes.filter(
-      (snake: any) => snake.user.login === action.payload.commandData.user.login
+      (snake: Snake) =>
+        snake.user.login === action.payload.commandData.user.login
     );
     if (userSnakes.length > 0) {
       return state;
@@ -207,7 +234,14 @@ const reducer = (state: any, action: any) => {
     };
   }
   if (action.type === "TICK") {
-    let newFood = [...state.food];
+    let newFood = [
+      ...state.food
+        .map((food: Food) => ({
+          ...food,
+          ticksSinceSpawn: food.ticksSinceSpawn++,
+        }))
+        .filter((food: Food) => food.ticksSinceSpawn < TICKS_TIL_FOOD_SPOILS),
+    ];
     let newSnakes = [...state.snakes];
 
     for (let i = 0; i < newSnakes.length; i++) {
@@ -216,7 +250,7 @@ const reducer = (state: any, action: any) => {
       if (newSnakes[i].speed > newSnakes[i].tickCount) {
         newSnakes[i].tickCount += 1;
       } else {
-        const possibleDirections = [
+        const possibleDirections: Direction[] = [
           current.direction,
           current.direction,
           ...DIRECTIONS,
@@ -229,7 +263,7 @@ const reducer = (state: any, action: any) => {
         // and we can continue in that direction
         // then continue in that direction
 
-        const isFoodInCurrentDirection = !!state.food.find((food: any) => {
+        const isFoodInCurrentDirection = !!state.food.find((food: Food) => {
           const head = current.cells[0];
           if (current.direction === "up") {
             return food.x === head.x && food.y < head.y;
@@ -275,16 +309,14 @@ const reducer = (state: any, action: any) => {
             y: headCell.y,
           },
         };
-        let newHead = movement[
-          direction as "up" | "down" | "left" | "right"
-        ] as Cell;
+        let newHead = movement[direction as Direction] as Cell;
 
         const isDead = possibleDirections.length === 0;
 
         let isGrowing = false;
         if (!isDead) {
           const beforeFood = newFood.length;
-          newFood = newFood.filter((f: any) => {
+          newFood = newFood.filter((f: Food) => {
             return !(f.x === newHead.x && f.y === newHead.y);
           });
 
@@ -307,10 +339,15 @@ const reducer = (state: any, action: any) => {
     }
 
     const deadSnakes = newSnakes.filter(
-      (snake: any) => snake.isAlive === false
+      (snake: Snake) => snake.isAlive === false
     );
-    deadSnakes.forEach((snake: any) => {
-      newFood = newFood.concat(snake.cells);
+    deadSnakes.forEach((snake: Snake) => {
+      newFood = newFood.concat(
+        snake.cells.map((cell: Cell) => ({
+          ...cell,
+          ticksSinceSpawn: 0,
+        }))
+      );
     });
 
     const newFoodSpawnTickCount = state.foodSpawnTickCount + 1;
@@ -322,6 +359,7 @@ const reducer = (state: any, action: any) => {
       newFood.push({
         x: Math.floor(Math.random() * CANVAS_WIDTH),
         y: Math.floor(Math.random() * CANVAS_HEIGHT),
+        ticksSinceSpawn: 0,
       });
     }
     return {
@@ -331,7 +369,7 @@ const reducer = (state: any, action: any) => {
           ? 0
           : newFoodSpawnTickCount,
       food: newFood,
-      snakes: newSnakes.filter((snake: any) => snake.isAlive),
+      snakes: newSnakes.filter((snake: Snake) => snake.isAlive),
     };
   }
   return state;
