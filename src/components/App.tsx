@@ -6,6 +6,7 @@ import BottomBar from "./BottomBar";
 import Commands from "./Commands";
 import Socials from "./Socials";
 import AdminScreen from "./AdminScreen";
+import HighlightedMessages from "./HighlightedMessages";
 import TopBar from "./TopBar";
 import SnakeGame from "./SnakeGame/SnakeGame";
 import Leaderboard from "./SnakeGame/Leaderboard";
@@ -51,6 +52,7 @@ function App() {
                 <MonsterBattle />
                 <WebWorks />
                 <SnakeGame />
+                <HighlightedMessages />
                 <TopBar>
                   <Socials />
                   <TwitchFollowerCount />
