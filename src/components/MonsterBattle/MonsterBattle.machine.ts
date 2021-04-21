@@ -158,26 +158,22 @@ const monsterBattleMachine = createMachine<Context, Event, State>(
   },
   {
     actions: {
-      tick: assign({
-        channel: ({ channel }) => {
-          if (channel === null) {
-            return channel;
-          }
-          return {
-            ...channel,
-            health: channel.health - 1,
-          };
-        },
-        currentMonster: ({ currentMonster, currentAttackers }) => {
-          if (currentMonster === null || currentAttackers === null) {
-            return currentMonster;
-          }
-          return {
-            ...currentMonster,
-            health: currentMonster.health - currentAttackers.length,
-          };
-        },
-      }),
+      tick: assign(({ channel, currentMonster, currentAttackers }) => ({
+        channel:
+          channel === null
+            ? channel
+            : {
+                ...channel,
+                health: channel.health - 1,
+              },
+        currentMonster:
+          currentMonster === null || currentAttackers === null
+            ? currentMonster
+            : {
+                ...currentMonster,
+                health: currentMonster.health - currentAttackers.length,
+              },
+      })),
       addAttacker: assign({
         currentAttackers: ({ currentAttackers }, evt) => {
           if (currentAttackers === null) {
@@ -210,7 +206,7 @@ const monsterBattleMachine = createMachine<Context, Event, State>(
         if (channel === null) {
           return false;
         }
-        return channel.health - 1 === 0;
+        return channel.health - 1 <= 0;
       },
       monsterDead: ({ currentMonster, currentAttackers }) => {
         if (currentMonster === null || currentAttackers === null) {
