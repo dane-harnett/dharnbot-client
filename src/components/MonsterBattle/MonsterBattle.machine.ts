@@ -1,6 +1,12 @@
 import { createMachine, assign } from "xstate";
 
+export enum MonsterType {
+  Emote,
+  Custom,
+}
+
 export interface Monster {
+  type: MonsterType;
   credits: string;
   description: string;
   health: number;
@@ -26,7 +32,16 @@ interface Context {
 }
 
 type Event =
-  | { type: "MESSAGE" }
+  | {
+      type: "MESSAGE";
+      payload: {
+        message: {
+          context: {
+            emotes: Record<string, string[]>;
+          };
+        };
+      };
+    }
   | {
       type: "CHAT_ATTACK";
       payload: {
@@ -73,6 +88,7 @@ const baseChannel = {
 };
 const monsters: Record<string, Monster> = {
   dan_hornet: {
+    type: MonsterType.Custom,
     id: "dan_hornet",
     name: "Dan Hornet",
     health: 45,
@@ -191,15 +207,35 @@ const monsterBattleMachine = createMachine<Context, Event, State>(
           return currentAttackers;
         },
       }),
-      startEncounter: assign({
-        currentAttackers: [],
-        currentMonster: {
-          ...monsters.dan_hornet,
-        },
-        channel: {
-          ...baseChannel,
-        },
-      } as Context),
+      startEncounter: assign((_ctx, evt) => {
+        if (evt.type === "MESSAGE") {
+          const emoteId = Object.keys(evt.payload.message.context.emotes)[0];
+          return {
+            currentAttackers: [],
+            currentMonster: {
+              type: MonsterType.Emote,
+              id: emoteId,
+              name: emoteId,
+              health: 45,
+              maxHealth: 45,
+              description: "",
+              credits: "I dunno",
+            },
+            channel: {
+              ...baseChannel,
+            },
+          } as Context;
+        }
+        return {
+          currentAttackers: [],
+          currentMonster: {
+            ...monsters.dan_hornet,
+          },
+          channel: {
+            ...baseChannel,
+          },
+        } as Context;
+      }),
     },
     guards: {
       channelDead: ({ channel }) => {
@@ -214,8 +250,11 @@ const monsterBattleMachine = createMachine<Context, Event, State>(
         }
         return currentMonster.health - currentAttackers.length <= 0;
       },
-      triggerEncounter: () => {
-        return Math.random() <= 0.05;
+      triggerEncounter: (_ctx, evt) => {
+        const isEmoteInMessage =
+          evt.type === "MESSAGE" && evt.payload.message.context.emotes !== null;
+        const isRandomInRange = Math.random() <= 0.05;
+        return isEmoteInMessage && isRandomInRange;
       },
     },
   }

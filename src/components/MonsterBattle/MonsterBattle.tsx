@@ -39,7 +39,10 @@ const MonsterBattle = () => {
     } else if (["!monstergo"].includes(msg) && isBroadcaster) {
       send("MANUAL_MONSTER_DEATH");
     } else if (event.message.message[0] !== "!") {
-      send("MESSAGE");
+      send({
+        type: "MESSAGE",
+        payload: { ...event },
+      });
     }
   }, []);
 
@@ -117,7 +120,10 @@ const MonsterBattle = () => {
                     {current.matches("success") ? (
                       <img src="/assets/monster-battle/tenor.gif" alt="" />
                     ) : (
-                      <MonsterImage id={current.context.currentMonster.id} />
+                      <MonsterImage
+                        id={current.context.currentMonster.id}
+                        type={current.context.currentMonster.type}
+                      />
                     )}
                     <MonsterInfo monster={current.context.currentMonster} />
                   </div>

@@ -1,10 +1,12 @@
 import * as React from "react";
+import { MonsterType } from "./MonsterBattle.machine";
 
 interface MonsterImageProps {
   id: string;
+  type: MonsterType;
 }
 
-const MonsterImage = ({ id }: MonsterImageProps): JSX.Element => {
+const MonsterImage = ({ id, type }: MonsterImageProps): JSX.Element => {
   return (
     <div
       style={{
@@ -14,7 +16,14 @@ const MonsterImage = ({ id }: MonsterImageProps): JSX.Element => {
         marginTop: 4,
       }}
     >
-      <img src={`/assets/monster-battle/${id}.png`} alt="" />
+      {type === MonsterType.Emote ? (
+        <img
+          src={`https://static-cdn.jtvnw.net/emoticons/v1/${id}/3.0`}
+          alt=""
+        />
+      ) : (
+        <img src={`/assets/monster-battle/${id}.png`} alt="" />
+      )}
     </div>
   );
 };
