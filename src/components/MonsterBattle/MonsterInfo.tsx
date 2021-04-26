@@ -1,11 +1,14 @@
 import * as React from "react";
-import { Monster } from "./MonsterBattle.machine";
+import { Monster } from "./types";
 
 interface MonsterInfoProps {
   monster: Monster;
 }
 
 const MonsterInfo = ({ monster }: MonsterInfoProps): JSX.Element => {
+  if (monster.description === "" && monster.credits === "") {
+    return <></>;
+  }
   return (
     <div
       style={{

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { MonsterType } from "./MonsterBattle.machine";
+import { MonsterType } from "./types";
 
 interface MonsterImageProps {
   id: string;

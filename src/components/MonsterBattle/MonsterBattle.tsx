@@ -7,7 +7,7 @@ import { useMessage } from "../../messages/useMessage";
 import BattleStarting from "./BattleStarting";
 import HealthBar from "./HealthBar";
 import EncounterInstructions from "./EncounterInstructions";
-import monsterBattleMachine from "./MonsterBattle.machine";
+import monsterBattleMachine from "./state-machine/machine";
 import MonsterImage from "./MonsterImage";
 import MonsterInfo from "./MonsterInfo";
 import MonsterName from "./MonsterName";
