@@ -21,6 +21,7 @@
     "framer-motion": "^2.6.13",
     "polished": "^3.6.6",
     "react": "^16.13.1",
+    "react-circular-progressbar": "^2.0.4",
     "react-dom": "^16.13.1",
     "react-error-overlay": "^6.0.7",
     "react-router-dom": "^5.2.0",

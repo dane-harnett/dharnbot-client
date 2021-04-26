@@ -29,6 +29,7 @@ interface Context {
   channel: Channel | null;
   currentMonster: Monster | null;
   currentAttackers: User[] | null;
+  startingTimer: number;
 }
 
 type Event =
@@ -39,6 +40,7 @@ type Event =
           context: {
             emotes: Record<string, string[]>;
           };
+          message: string;
         };
       };
     }
@@ -68,6 +70,10 @@ type State =
   | {
       value: "idle";
       context: IdleContext;
+    }
+  | {
+      value: "starting";
+      context: ActiveContext;
     }
   | {
       value: "active";
@@ -105,13 +111,14 @@ const monsterBattleMachine = createMachine<Context, Event, State>(
       channel: null,
       currentMonster: null,
       currentAttackers: null,
+      startingTimer: 0,
     },
     states: {
       idle: {
         on: {
           MESSAGE: [
             {
-              target: "active",
+              target: "starting",
               cond: { type: "triggerEncounter" },
               actions: "startEncounter",
             },
@@ -120,9 +127,32 @@ const monsterBattleMachine = createMachine<Context, Event, State>(
             },
           ],
           MANUAL_SPAWN: {
-            target: "active",
+            target: "starting",
             actions: "startEncounter",
           },
+        },
+      },
+      starting: {
+        after: {
+          1000: [
+            {
+              cond: { type: "startingTimerLessThan5" },
+              target: "starting",
+              internal: false,
+              actions: "incrementStartingTimer",
+            },
+            {
+              target: "active",
+            },
+          ],
+        },
+        on: {
+          CHAT_ATTACK: [
+            {
+              target: "starting",
+              actions: "addAttacker",
+            },
+          ],
         },
       },
       active: {
@@ -210,20 +240,28 @@ const monsterBattleMachine = createMachine<Context, Event, State>(
       startEncounter: assign((_ctx, evt) => {
         if (evt.type === "MESSAGE") {
           const emoteId = Object.keys(evt.payload.message.context.emotes)[0];
+          const emoteData = evt.payload.message.context.emotes[emoteId];
+          const startIndex = parseInt(emoteData[0].split("-")[0], 10);
+          const endIndex = parseInt(emoteData[0].split("-")[1], 10);
+          const emoteName = evt.payload.message.message.substring(
+            startIndex,
+            endIndex + 1
+          );
           return {
             currentAttackers: [],
             currentMonster: {
               type: MonsterType.Emote,
               id: emoteId,
-              name: emoteId,
+              name: emoteName,
               health: 45,
               maxHealth: 45,
               description: "",
-              credits: "I dunno",
+              credits: "",
             },
             channel: {
               ...baseChannel,
             },
+            startingTimer: 0,
           } as Context;
         }
         return {
@@ -234,7 +272,14 @@ const monsterBattleMachine = createMachine<Context, Event, State>(
           channel: {
             ...baseChannel,
           },
+          startingTimer: 0,
         } as Context;
+      }),
+      incrementStartingTimer: assign((ctx) => {
+        return {
+          ...ctx,
+          startingTimer: ctx.startingTimer + 1,
+        };
       }),
     },
     guards: {
@@ -253,9 +298,10 @@ const monsterBattleMachine = createMachine<Context, Event, State>(
       triggerEncounter: (_ctx, evt) => {
         const isEmoteInMessage =
           evt.type === "MESSAGE" && evt.payload.message.context.emotes !== null;
-        const isRandomInRange = Math.random() <= 0.05;
+        const isRandomInRange = Math.random() <= 1;
         return isEmoteInMessage && isRandomInRange;
       },
+      startingTimerLessThan5: ({ startingTimer }) => startingTimer < 5,
     },
   }
 );

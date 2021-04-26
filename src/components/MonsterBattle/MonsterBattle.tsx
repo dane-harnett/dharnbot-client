@@ -1,8 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 import { useMachine } from "@xstate/react";
+import { CircularProgressbarWithChildren } from "react-circular-progressbar";
 
 import { useMessage } from "../../messages/useMessage";
+import BattleStarting from "./BattleStarting";
 import HealthBar from "./HealthBar";
 import EncounterInstructions from "./EncounterInstructions";
 import monsterBattleMachine from "./MonsterBattle.machine";
@@ -47,10 +49,15 @@ const MonsterBattle = () => {
   }, []);
 
   if (
+    current.matches("starting") ||
     current.matches("active") ||
     current.matches("success") ||
     current.matches("fail")
   ) {
+    const health = current.context.currentMonster.health;
+    const maxHealth = current.context.currentMonster.maxHealth;
+    const normalizedHealth = health < 0 ? 0 : health;
+    const healthPercent = Math.floor((normalizedHealth / maxHealth) * 100);
     return (
       <GameContainer>
         <div
@@ -90,43 +97,71 @@ const MonsterBattle = () => {
               >
                 <div
                   style={{
-                    backgroundColor: "black",
+                    backgroundColor: "transparent",
                     borderRadius: "50%",
-                    width: 500,
-                    height: 500,
+                    width: 900,
+                    height: 900,
                     alignItems: "center",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "center",
                   }}
                 >
-                  <div
-                    style={{
-                      alignItems: "stretch",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      width: 300,
-                      height: 300,
+                  <CircularProgressbarWithChildren
+                    background
+                    strokeWidth={4}
+                    styles={{
+                      background: { fill: "#000000" },
+                      path: {
+                        stroke: "mediumseagreen",
+                      },
+                      root: {
+                        width: 500,
+                      },
                     }}
+                    value={healthPercent}
                   >
-                    <MonsterName>
-                      {current.context.currentMonster.name}
-                    </MonsterName>
-                    <HealthBar
-                      health={current.context.currentMonster.health}
-                      maxHealth={current.context.currentMonster.maxHealth}
-                    />
-                    {current.matches("success") ? (
-                      <img src="/assets/monster-battle/tenor.gif" alt="" />
+                    {current.matches("starting") ? (
+                      <div
+                        style={{
+                          alignItems: "stretch",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          width: 300,
+                          height: 300,
+                        }}
+                      >
+                        <BattleStarting>
+                          Battle starting in {5 - current.context.startingTimer}
+                        </BattleStarting>
+                      </div>
                     ) : (
-                      <MonsterImage
-                        id={current.context.currentMonster.id}
-                        type={current.context.currentMonster.type}
-                      />
+                      <div
+                        style={{
+                          alignItems: "stretch",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          width: 300,
+                          height: 300,
+                        }}
+                      >
+                        <MonsterName>
+                          {current.context.currentMonster.name}
+                        </MonsterName>
+                        {current.matches("success") ? (
+                          <img src="/assets/monster-battle/tenor.gif" alt="" />
+                        ) : (
+                          <MonsterImage
+                            id={current.context.currentMonster.id}
+                            type={current.context.currentMonster.type}
+                          />
+                        )}
+                        <MonsterInfo monster={current.context.currentMonster} />
+                      </div>
                     )}
-                    <MonsterInfo monster={current.context.currentMonster} />
-                  </div>
+                  </CircularProgressbarWithChildren>
                 </div>
               </div>
             )}

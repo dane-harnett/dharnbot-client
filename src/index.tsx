@@ -4,6 +4,7 @@ import "./index.css";
 import App from "./components/App";
 import * as serviceWorker from "./serviceWorker";
 import { stopReportingRuntimeErrors } from "react-error-overlay";
+import "react-circular-progressbar/dist/styles.css";
 
 if (process.env.NODE_ENV === "development") {
   stopReportingRuntimeErrors(); // disables error overlays

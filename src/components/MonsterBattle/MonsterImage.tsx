@@ -20,6 +20,7 @@ const MonsterImage = ({ id, type }: MonsterImageProps): JSX.Element => {
         <img
           src={`https://static-cdn.jtvnw.net/emoticons/v1/${id}/3.0`}
           alt=""
+          style={{ width: 224, height: 224 }}
         />
       ) : (
         <img src={`/assets/monster-battle/${id}.png`} alt="" />
