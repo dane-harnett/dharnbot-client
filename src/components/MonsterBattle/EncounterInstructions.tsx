@@ -14,7 +14,8 @@ const EncounterInstructions = () => {
       <br />
       A monster is attacking the channel!
       <br />
-      Type "!attack" in chat to attack the monster.
+      Type "!attack/!defend/!heal" in chat to attack the monster or defend/heal
+      the channel.
     </div>
   );
 };
