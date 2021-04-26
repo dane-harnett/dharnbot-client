@@ -36,6 +36,20 @@ const MonsterBattle = () => {
           user: event.user,
         },
       });
+    } else if (msg.indexOf("!defend") === 0) {
+      send({
+        type: "CHAT_DEFEND",
+        payload: {
+          user: event.user,
+        },
+      });
+    } else if (msg.indexOf("!heal") === 0) {
+      send({
+        type: "CHAT_HEAL",
+        payload: {
+          user: event.user,
+        },
+      });
     } else if (["!monsterplz"].includes(msg) && isBroadcaster) {
       send("MANUAL_SPAWN");
     } else if (["!monstergo"].includes(msg) && isBroadcaster) {
@@ -179,8 +193,22 @@ const MonsterBattle = () => {
                   padding: 4,
                 }}
               >
-                Channel HP: (
+                Channel HP: (Attackers:
                 {current.context.currentAttackers.map((u) => (
+                  <img
+                    src={u.profile_image_url}
+                    style={{ width: 48, height: 48 }}
+                  />
+                ))}
+                Defenders:
+                {current.context.currentDefenders.map((u) => (
+                  <img
+                    src={u.profile_image_url}
+                    style={{ width: 48, height: 48 }}
+                  />
+                ))}
+                Healers:
+                {current.context.currentHealers.map((u) => (
                   <img
                     src={u.profile_image_url}
                     style={{ width: 48, height: 48 }}

@@ -27,6 +27,8 @@ export interface Context {
   channel: Channel | null;
   currentMonster: Monster | null;
   currentAttackers: User[] | null;
+  currentDefenders: User[] | null;
+  currentHealers: User[] | null;
   startingTimer: number;
 }
 
@@ -48,6 +50,18 @@ export type Event =
         user: User;
       };
     }
+  | {
+      type: "CHAT_DEFEND";
+      payload: {
+        user: User;
+      };
+    }
+  | {
+      type: "CHAT_HEAL";
+      payload: {
+        user: User;
+      };
+    }
   | { type: "MANUAL_SPAWN" }
   | { type: "MANUAL_MONSTER_DEATH" }
   | { type: "TICK" };
@@ -56,12 +70,16 @@ export type IdleContext = Context & {
   channel: null;
   currentMonster: null;
   currentAttackers: null;
+  currentDefenders: null;
+  currentHealers: null;
 };
 
 export type ActiveContext = Context & {
   channel: Channel;
   currentMonster: Monster;
   currentAttackers: User[];
+  currentDefenders: User[];
+  currentHealers: User[];
 };
 
 export type State =

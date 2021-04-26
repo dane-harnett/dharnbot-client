@@ -18,39 +18,123 @@ const monsters: Record<string, Monster> = {
 };
 
 export const tick = assign<Context, Event>(
-  ({ channel, currentMonster, currentAttackers }) => ({
-    channel:
-      channel === null
-        ? channel
-        : {
-            ...channel,
-            health: channel.health - 1,
-          },
-    currentMonster:
-      currentMonster === null || currentAttackers === null
-        ? currentMonster
-        : {
-            ...currentMonster,
-            health: currentMonster.health - currentAttackers.length,
-          },
-  })
+  ({
+    channel,
+    currentMonster,
+    currentAttackers,
+    currentDefenders,
+    currentHealers,
+  }) => {
+    const attackers = currentAttackers === null ? [] : currentAttackers;
+    const defenders = currentDefenders === null ? [] : currentDefenders;
+    const healers = currentHealers === null ? [] : currentHealers;
+    let newChannel;
+    if (channel === null) {
+      newChannel = null;
+    } else {
+      const monsterStrength = 1;
+      const possibleDamage = monsterStrength - defenders.length;
+      const channelDamage = possibleDamage <= 0 ? 0 : possibleDamage;
+      const newChannelHealth = channel.health - channelDamage + healers.length;
+      newChannel = {
+        ...channel,
+        health: newChannelHealth,
+      };
+    }
+    return {
+      channel: newChannel,
+      currentMonster:
+        currentMonster === null || currentAttackers === null
+          ? currentMonster
+          : {
+              ...currentMonster,
+              health: currentMonster.health - attackers.length,
+            },
+    };
+  }
 );
 
 export const addAttacker = assign<Context, Event>(
-  ({ currentAttackers }, evt) => {
-    if (currentAttackers === null) {
+  ({ currentAttackers, currentDefenders, currentHealers }, evt) => {
+    if (
+      currentAttackers === null ||
+      currentDefenders === null ||
+      currentHealers === null
+    ) {
       return { currentAttackers: null };
     }
     if (evt.type === "CHAT_ATTACK") {
       const existingAttacker = currentAttackers.find((user) => {
         return user.login === evt.payload.user.login;
       });
-      if (existingAttacker) {
+      const existingDefender = currentDefenders.find((user) => {
+        return user.login === evt.payload.user.login;
+      });
+      const existingHealer = currentHealers.find((user) => {
+        return user.login === evt.payload.user.login;
+      });
+      if (existingAttacker || existingDefender || existingHealer) {
         return { currentAttackers };
       }
       return { currentAttackers: currentAttackers.concat([evt.payload.user]) };
     }
     return { currentAttackers };
+  }
+);
+
+export const addDefender = assign<Context, Event>(
+  ({ currentAttackers, currentDefenders, currentHealers }, evt) => {
+    if (
+      currentDefenders === null ||
+      currentAttackers === null ||
+      currentHealers === null
+    ) {
+      return { currentDefenders: null };
+    }
+    if (evt.type === "CHAT_DEFEND") {
+      const existingAttacker = currentAttackers.find((user) => {
+        return user.login === evt.payload.user.login;
+      });
+      const existingDefender = currentDefenders.find((user) => {
+        return user.login === evt.payload.user.login;
+      });
+      const existingHealer = currentHealers.find((user) => {
+        return user.login === evt.payload.user.login;
+      });
+      if (existingDefender || existingAttacker || existingHealer) {
+        return { currentDefenders };
+      }
+      return { currentDefenders: currentDefenders.concat([evt.payload.user]) };
+    }
+    return { currentDefenders };
+  }
+);
+
+export const addHealer = assign<Context, Event>(
+  ({ currentAttackers, currentDefenders, currentHealers }, evt) => {
+    if (
+      currentDefenders === null ||
+      currentAttackers === null ||
+      currentHealers === null
+    ) {
+      return { currentHealers: null };
+    }
+    if (evt.type === "CHAT_HEAL") {
+      const existingAttacker = currentAttackers.find((user) => {
+        return user.login === evt.payload.user.login;
+      });
+      const existingDefender = currentDefenders.find((user) => {
+        return user.login === evt.payload.user.login;
+      });
+      const existingHealer = currentHealers.find((user) => {
+        return user.login === evt.payload.user.login;
+      });
+      if (existingDefender || existingAttacker || existingHealer) {
+        return { currentHealers };
+      }
+      return { currentHealers: currentHealers.concat([evt.payload.user]) };
+    }
+    return { currentHealers };
   }
 );
 
@@ -66,6 +150,8 @@ export const startEncounter = assign<Context, Event>((_ctx, evt) => {
     );
     return {
       currentAttackers: [],
+      currentDefenders: [],
+      currentHealers: [],
       currentMonster: {
         type: MonsterType.Emote,
         id: emoteId,
@@ -83,6 +169,8 @@ export const startEncounter = assign<Context, Event>((_ctx, evt) => {
   }
   return {
     currentAttackers: [],
+    currentDefenders: [],
+    currentHealers: [],
     currentMonster: {
       ...monsters.dan_hornet,
     },
