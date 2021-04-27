@@ -23,12 +23,22 @@ export interface User {
   profile_image_url: string;
 }
 
+export enum ParticipantType {
+  Attacker,
+  Defender,
+  Healer,
+}
+
+export interface Participant {
+  login: string;
+  profile_image_url: string;
+  type: ParticipantType;
+}
+
 export interface Context {
   channel: Channel | null;
   currentMonster: Monster | null;
-  currentAttackers: User[] | null;
-  currentDefenders: User[] | null;
-  currentHealers: User[] | null;
+  participants: Participant[] | null;
   startingTimer: number;
 }
 
@@ -69,17 +79,13 @@ export type Event =
 export type IdleContext = Context & {
   channel: null;
   currentMonster: null;
-  currentAttackers: null;
-  currentDefenders: null;
-  currentHealers: null;
+  participants: null;
 };
 
 export type ActiveContext = Context & {
   channel: Channel;
   currentMonster: Monster;
-  currentAttackers: User[];
-  currentDefenders: User[];
-  currentHealers: User[];
+  participants: Participant[];
 };
 
 export type State =

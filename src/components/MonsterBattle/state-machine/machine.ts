@@ -9,9 +9,7 @@ const monsterBattleMachine = createMachine<Context, Event, State>(
     context: {
       channel: null,
       currentMonster: null,
-      currentAttackers: null,
-      currentDefenders: null,
-      currentHealers: null,
+      participants: null,
       startingTimer: 0,
     },
     states: {
@@ -51,19 +49,19 @@ const monsterBattleMachine = createMachine<Context, Event, State>(
           CHAT_ATTACK: [
             {
               target: "starting",
-              actions: "addAttacker",
+              actions: "addParticipant",
             },
           ],
           CHAT_DEFEND: [
             {
               target: "starting",
-              actions: "addDefender",
+              actions: "addParticipant",
             },
           ],
           CHAT_HEAL: [
             {
               target: "starting",
-              actions: "addHealer",
+              actions: "addParticipant",
             },
           ],
         },
@@ -95,19 +93,19 @@ const monsterBattleMachine = createMachine<Context, Event, State>(
           CHAT_ATTACK: [
             {
               target: "active",
-              actions: "addAttacker",
+              actions: "addParticipant",
             },
           ],
           CHAT_DEFEND: [
             {
               target: "active",
-              actions: "addDefender",
+              actions: "addParticipant",
             },
           ],
           CHAT_HEAL: [
             {
               target: "active",
-              actions: "addHealer",
+              actions: "addParticipant",
             },
           ],
           MANUAL_MONSTER_DEATH: "idle",

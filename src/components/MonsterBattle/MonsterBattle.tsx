@@ -11,6 +11,8 @@ import monsterBattleMachine from "./state-machine/machine";
 import MonsterImage from "./MonsterImage";
 import MonsterInfo from "./MonsterInfo";
 import MonsterName from "./MonsterName";
+import { isAttacker, isDefender, isHealer } from "./participants";
+import { ParticipantType } from "./types";
 
 const GameContainer = styled.div`
   position: fixed;
@@ -194,21 +196,21 @@ const MonsterBattle = () => {
                 }}
               >
                 Channel HP: (Attackers:
-                {current.context.currentAttackers.map((u) => (
+                {current.context.participants.filter(isAttacker).map((u) => (
                   <img
                     src={u.profile_image_url}
                     style={{ width: 48, height: 48 }}
                   />
                 ))}
                 Defenders:
-                {current.context.currentDefenders.map((u) => (
+                {current.context.participants.filter(isDefender).map((u) => (
                   <img
                     src={u.profile_image_url}
                     style={{ width: 48, height: 48 }}
                   />
                 ))}
                 Healers:
-                {current.context.currentHealers.map((u) => (
+                {current.context.participants.filter(isHealer).map((u) => (
                   <img
                     src={u.profile_image_url}
                     style={{ width: 48, height: 48 }}
