@@ -164,7 +164,8 @@ const MonsterBattle = () => {
                         }}
                       >
                         <MonsterName>
-                          {current.context.currentMonster.name}
+                          {current.context.currentMonster.name} LVL
+                          {current.context.currentMonster.level}
                         </MonsterName>
                         {current.matches("success") ? (
                           <img src="/assets/monster-battle/tenor.gif" alt="" />

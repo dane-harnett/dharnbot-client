@@ -8,17 +8,53 @@ import {
   ParticipantType,
 } from "../types";
 
+const monsterLevels = {
+  1: {
+    maxHealth: 4,
+  },
+  2: {
+    maxHealth: 8,
+  },
+  3: {
+    maxHealth: 12,
+  },
+  4: {
+    maxHealth: 16,
+  },
+  5: {
+    maxHealth: 20,
+  },
+  6: {
+    maxHealth: 24,
+  },
+  7: {
+    maxHealth: 28,
+  },
+  8: {
+    maxHealth: 32,
+  },
+  9: {
+    maxHealth: 36,
+  },
+  10: {
+    maxHealth: 40,
+  },
+};
+
 const baseChannel = {
   health: 30,
   maxHealth: 30,
 };
+
+const DAN_HORNET_LEVEL = 10;
 const monsters: Record<string, Monster> = {
   dan_hornet: {
     type: MonsterType.Custom,
     id: "dan_hornet",
+    level: DAN_HORNET_LEVEL,
     name: "Dan Hornet",
-    health: 45,
-    maxHealth: 45,
+    health: monsterLevels[DAN_HORNET_LEVEL].maxHealth,
+    maxHealth: monsterLevels[DAN_HORNET_LEVEL].maxHealth,
     description: "Watch out you might get stung!",
     credits: "Artwork courtesy of RetroMMO and fruloo",
   },
@@ -111,13 +147,18 @@ export const startEncounter = assign<Context, Event>((_ctx, evt) => {
       startIndex,
       endIndex + 1
     );
+
+    const randomNumber = Math.floor(Math.random() * 10) + 1;
+    const monsterLevel = randomNumber as keyof typeof monsterLevels;
+
     return {
       currentMonster: {
         type: MonsterType.Emote,
         id: emoteId,
+        level: monsterLevel,
         name: emoteName,
-        health: 45,
-        maxHealth: 45,
+        health: monsterLevels[monsterLevel].maxHealth,
+        maxHealth: monsterLevels[monsterLevel].maxHealth,
         description: "",
         credits: "",
       },
@@ -128,6 +169,7 @@ export const startEncounter = assign<Context, Event>((_ctx, evt) => {
       startingTimer: 0,
     } as Context;
   }
+
   return {
     currentMonster: {
       ...monsters.dan_hornet,

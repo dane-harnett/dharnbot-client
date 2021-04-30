@@ -9,6 +9,7 @@ export interface Monster {
   description: string;
   health: number;
   id: string;
+  level: number;
   maxHealth: number;
   name: string;
 }
