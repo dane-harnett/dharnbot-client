@@ -1,67 +1,20 @@
 import { assign } from "xstate";
+import channelData from "../data/channel";
+import customMonsters from "../data/customMonsters";
+import monsterLevels from "../data/monsterLevels";
 import { isAttacker, isDefender, isHealer } from "../participants";
-import {
-  Context,
-  Event,
-  Monster,
-  MonsterType,
-  ParticipantType,
-} from "../types";
-
-const monsterLevels = {
-  1: {
-    maxHealth: 4,
-  },
-  2: {
-    maxHealth: 8,
-  },
-  3: {
-    maxHealth: 12,
-  },
-  4: {
-    maxHealth: 16,
-  },
-  5: {
-    maxHealth: 20,
-  },
-  6: {
-    maxHealth: 24,
-  },
-  7: {
-    maxHealth: 28,
-  },
-  8: {
-    maxHealth: 32,
-  },
-  9: {
-    maxHealth: 36,
-  },
-  10: {
-    maxHealth: 40,
-  },
-};
-
-const baseChannel = {
-  health: 30,
-  maxHealth: 30,
-};
-
-const DAN_HORNET_LEVEL = 10;
-const monsters: Record<string, Monster> = {
-  dan_hornet: {
-    type: MonsterType.Custom,
-    id: "dan_hornet",
-    level: DAN_HORNET_LEVEL,
-    name: "Dan Hornet",
-    health: monsterLevels[DAN_HORNET_LEVEL].maxHealth,
-    maxHealth: monsterLevels[DAN_HORNET_LEVEL].maxHealth,
-    description: "Watch out you might get stung!",
-    credits: "Artwork courtesy of RetroMMO and fruloo",
-  },
-};
+import { MonsterType, ParticipantType } from "../types";
+import { Context, Event } from "./types";
 
 export const tick = assign<Context, Event>(
   ({ channel, currentMonster, participants }) => {
+    if (currentMonster === null) {
+      return {
+        channel,
+        currentMonster,
+      };
+    }
+
     let attackers = [];
     let defenders = [];
     let healers = [];
@@ -75,9 +28,13 @@ export const tick = assign<Context, Event>(
     if (channel === null) {
       newChannel = null;
     } else {
-      const monsterStrength = 1;
-      const possibleDamage = monsterStrength - defenders.length;
+      const monsterLevel = monsterLevels[currentMonster.level];
+      const variedDamage =
+        Math.floor(Math.random() * monsterLevel.damage.max) +
+        monsterLevel.damage.min;
+      const possibleDamage = variedDamage - defenders.length;
       const channelDamage = possibleDamage <= 0 ? 0 : possibleDamage;
+      console.log("@@@ channelDamage this tick is", channelDamage);
       const newChannelHealth = channel.health - channelDamage + healers.length;
       newChannel = {
         ...channel,
@@ -92,13 +49,10 @@ export const tick = assign<Context, Event>(
 
     return {
       channel: newChannel,
-      currentMonster:
-        currentMonster === null
-          ? currentMonster
-          : {
-              ...currentMonster,
-              health: currentMonster.health - damageToMonster,
-            },
+      currentMonster: {
+        ...currentMonster,
+        health: currentMonster.health - damageToMonster,
+      },
     };
   }
 );
@@ -163,7 +117,7 @@ export const startEncounter = assign<Context, Event>((_ctx, evt) => {
         credits: "",
       },
       channel: {
-        ...baseChannel,
+        ...channelData,
       },
       participants: [],
       startingTimer: 0,
@@ -172,10 +126,10 @@ export const startEncounter = assign<Context, Event>((_ctx, evt) => {
 
   return {
     currentMonster: {
-      ...monsters.dan_hornet,
+      ...customMonsters.dan_hornet,
     },
     channel: {
-      ...baseChannel,
+      ...channelData,
     },
     participants: [],
     startingTimer: 0,

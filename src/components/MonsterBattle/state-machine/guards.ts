@@ -1,6 +1,6 @@
 import { isAttacker } from "../participants";
 import emotes from "./emotes";
-import { Context, Event } from "../types";
+import { Context, Event } from "./types";
 
 export const channelDead = ({ channel }: Context) => {
   if (channel === null) {

@@ -1,7 +1,7 @@
 import { createMachine } from "xstate";
 import * as actions from "./actions";
 import * as guards from "./guards";
-import { Context, Event, State } from "../types";
+import { Context, Event, State } from "./types";
 
 const monsterBattleMachine = createMachine<Context, Event, State>(
   {
