@@ -12,7 +12,13 @@ import MonsterImage from "./MonsterImage";
 import MonsterInfo from "./MonsterInfo";
 import MonsterName from "./MonsterName";
 import { isAttacker, isDefender, isHealer } from "./participants";
-import { ParticipantType } from "./types";
+import {
+  ChatAttackEvent,
+  ChatDefendEvent,
+  ChatHealEvent,
+  ManualSpawnEvent,
+  ManualMonsterDeathEvent,
+} from "./state-machine/types";
 
 const GameContainer = styled.div`
   position: fixed;
@@ -23,6 +29,63 @@ const GameContainer = styled.div`
   z-index: 99;
 `;
 
+const actionList = [
+  {
+    messagePrefixes: ["!attack", "!e1"],
+    isBroadcasterOnly: false,
+    action: (event: any) => {
+      return {
+        type: "CHAT_ATTACK",
+        payload: {
+          user: event.user,
+        },
+      } as ChatAttackEvent;
+    },
+  },
+  {
+    messagePrefixes: ["!defend", "!d1"],
+    isBroadcasterOnly: false,
+    action: (event: any) => {
+      return {
+        type: "CHAT_DEFEND",
+        payload: {
+          user: event.user,
+        },
+      } as ChatDefendEvent;
+    },
+  },
+  {
+    messagePrefixes: ["!heal", "!h1"],
+    isBroadcasterOnly: false,
+    action: (event: any) => {
+      return {
+        type: "CHAT_HEAL",
+        payload: {
+          user: event.user,
+        },
+      } as ChatHealEvent;
+    },
+  },
+  {
+    messagePrefixes: ["!monsterplz"],
+    isBroadcasterOnly: true,
+    action: () => {
+      return {
+        type: "MANUAL_SPAWN",
+      } as ManualSpawnEvent;
+    },
+  },
+  {
+    messagePrefixes: ["!monstergo"],
+    isBroadcasterOnly: true,
+    action: () => {
+      return {
+        type: "MANUAL_MONSTER_DEATH",
+      } as ManualMonsterDeathEvent;
+    },
+  },
+];
+
 const MonsterBattle = () => {
   const [current, send] = useMachine(monsterBattleMachine);
 
@@ -31,37 +94,60 @@ const MonsterBattle = () => {
 
     const isBroadcaster = event.message.context.badges?.broadcaster === "1";
 
-    if (msg.indexOf("!attack") === 0 || msg.indexOf("!e1") === 0) {
-      send({
-        type: "CHAT_ATTACK",
-        payload: {
-          user: event.user,
-        },
-      });
-    } else if (msg.indexOf("!defend") === 0) {
-      send({
-        type: "CHAT_DEFEND",
-        payload: {
-          user: event.user,
-        },
-      });
-    } else if (msg.indexOf("!heal") === 0) {
-      send({
-        type: "CHAT_HEAL",
-        payload: {
-          user: event.user,
-        },
-      });
-    } else if (["!monsterplz"].includes(msg) && isBroadcaster) {
-      send("MANUAL_SPAWN");
-    } else if (["!monstergo"].includes(msg) && isBroadcaster) {
-      send("MANUAL_MONSTER_DEATH");
-    } else if (event.message.message[0] !== "!") {
+    const currentActionItem = actionList.find((actionItem) => {
+      if (
+        actionItem.messagePrefixes.some((prefix) => msg.indexOf(prefix) === 0)
+      ) {
+        return true;
+      }
+      return false;
+    });
+    if (
+      currentActionItem &&
+      (!currentActionItem.isBroadcasterOnly ||
+        (currentActionItem.isBroadcasterOnly && isBroadcaster))
+    ) {
+      send(currentActionItem.action(event));
+      return;
+    }
+    if (event.message.message[0] !== "!") {
       send({
         type: "MESSAGE",
         payload: { ...event },
       });
     }
+
+    // if (msg.indexOf("!attack") === 0 || msg.indexOf("!e1") === 0) {
+    //   send({
+    //     type: "CHAT_ATTACK",
+    //     payload: {
+    //       user: event.user,
+    //     },
+    //   });
+    // } else if (msg.indexOf("!defend") === 0) {
+    //   send({
+    //     type: "CHAT_DEFEND",
+    //     payload: {
+    //       user: event.user,
+    //     },
+    //   });
+    // } else if (msg.indexOf("!heal") === 0) {
+    //   send({
+    //     type: "CHAT_HEAL",
+    //     payload: {
+    //       user: event.user,
+    //     },
+    //   });
+    // } else if (["!monsterplz"].includes(msg) && isBroadcaster) {
+    //   send("MANUAL_SPAWN");
+    // } else if (["!monstergo"].includes(msg) && isBroadcaster) {
+    //   send("MANUAL_MONSTER_DEATH");
+    // } else if (event.message.message[0] !== "!") {
+    //   send({
+    //     type: "MESSAGE",
+    //     payload: { ...event },
+    //   });
+    // }
   }, []);
 
   if (

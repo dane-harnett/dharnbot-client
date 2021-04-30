@@ -7,39 +7,53 @@ export interface Context {
   startingTimer: number;
 }
 
+export interface MessageEvent {
+  type: "MESSAGE";
+  payload: {
+    message: {
+      context: {
+        emotes: Record<string, string[]>;
+      };
+      message: string;
+    };
+  };
+}
+export interface ChatAttackEvent {
+  type: "CHAT_ATTACK";
+  payload: {
+    user: User;
+  };
+}
+export interface ChatDefendEvent {
+  type: "CHAT_DEFEND";
+  payload: {
+    user: User;
+  };
+}
+export interface ChatHealEvent {
+  type: "CHAT_HEAL";
+  payload: {
+    user: User;
+  };
+}
+export interface ManualSpawnEvent {
+  type: "MANUAL_SPAWN";
+}
+export interface ManualMonsterDeathEvent {
+  type: "MANUAL_MONSTER_DEATH";
+}
+export interface TickEvent {
+  type: "TICK";
+}
+
 export type Event =
-  | {
-      type: "MESSAGE";
-      payload: {
-        message: {
-          context: {
-            emotes: Record<string, string[]>;
-          };
-          message: string;
-        };
-      };
-    }
-  | {
-      type: "CHAT_ATTACK";
-      payload: {
-        user: User;
-      };
-    }
-  | {
-      type: "CHAT_DEFEND";
-      payload: {
-        user: User;
-      };
-    }
-  | {
-      type: "CHAT_HEAL";
-      payload: {
-        user: User;
-      };
-    }
-  | { type: "MANUAL_SPAWN" }
-  | { type: "MANUAL_MONSTER_DEATH" }
-  | { type: "TICK" };
+  | MessageEvent
+  | ChatAttackEvent
+  | ChatDefendEvent
+  | ChatHealEvent
+  | ManualSpawnEvent
+  | ManualMonsterDeathEvent
+  | TickEvent;
 
 export type IdleContext = Context & {
   channel: null;
