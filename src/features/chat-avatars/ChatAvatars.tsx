@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer } from "react";
 import ChatAvatar from "./ChatAvatar";
-import { useSocket } from "../hooks/useSocket";
+import { useSocket } from "../../hooks/useSocket";
 
 interface ICommandData {
   message: {

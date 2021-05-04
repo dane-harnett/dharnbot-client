@@ -3,22 +3,22 @@ import styled from "styled-components";
 import { useMachine } from "@xstate/react";
 import { CircularProgressbarWithChildren } from "react-circular-progressbar";
 
-import { useMessage } from "../../messages/useMessage";
+import { useMessage } from "../../../messages/useMessage";
 import BattleStarting from "./BattleStarting";
 import HealthBar from "./HealthBar";
 import EncounterInstructions from "./EncounterInstructions";
-import monsterBattleMachine from "./state-machine/machine";
+import monsterBattleMachine from "../state-machine/machine";
 import MonsterImage from "./MonsterImage";
 import MonsterInfo from "./MonsterInfo";
 import MonsterName from "./MonsterName";
-import { isAttacker, isDefender, isHealer } from "./participants";
+import { isAttacker, isDefender, isHealer } from "../participants";
 import {
   ChatAttackEvent,
   ChatDefendEvent,
   ChatHealEvent,
   ManualSpawnEvent,
   ManualMonsterDeathEvent,
-} from "./state-machine/types";
+} from "../state-machine/types";
 
 const GameContainer = styled.div`
   position: fixed;
@@ -116,38 +116,6 @@ const MonsterBattle = () => {
         payload: { ...event },
       });
     }
-
-    // if (msg.indexOf("!attack") === 0 || msg.indexOf("!e1") === 0) {
-    //   send({
-    //     type: "CHAT_ATTACK",
-    //     payload: {
-    //       user: event.user,
-    //     },
-    //   });
-    // } else if (msg.indexOf("!defend") === 0) {
-    //   send({
-    //     type: "CHAT_DEFEND",
-    //     payload: {
-    //       user: event.user,
-    //     },
-    //   });
-    // } else if (msg.indexOf("!heal") === 0) {
-    //   send({
-    //     type: "CHAT_HEAL",
-    //     payload: {
-    //       user: event.user,
-    //     },
-    //   });
-    // } else if (["!monsterplz"].includes(msg) && isBroadcaster) {
-    //   send("MANUAL_SPAWN");
-    // } else if (["!monstergo"].includes(msg) && isBroadcaster) {
-    //   send("MANUAL_MONSTER_DEATH");
-    // } else if (event.message.message[0] !== "!") {
-    //   send({
-    //     type: "MESSAGE",
-    //     payload: { ...event },
-    //   });
-    // }
   }, []);
 
   if (
