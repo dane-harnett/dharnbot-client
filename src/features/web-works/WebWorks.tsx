@@ -1,19 +1,18 @@
-import React, { useState } from "react";
+import React from "react";
+import { useMachine } from "@xstate/react";
 import { useMessage } from "../../messages/useMessage";
+import machine from "./state-machine/machine";
 
 const WebWorks = () => {
-  const [currentPhoto, setCurrentPhoto] = useState<string | null>(null);
+  const [current, send] = useMachine(machine);
 
-  useMessage((event: any) => {
-    if (event.message.message.toLowerCase() === "!webworks") {
-      setCurrentPhoto("webworks01.png");
+  useMessage(({ message }) => {
+    if (message.message.toLowerCase().indexOf("!webworks") === 0) {
+      send("ACTIVATE");
     }
-    setTimeout(() => {
-      setCurrentPhoto(null);
-    }, 3000);
   }, []);
 
-  if (currentPhoto === null) {
+  if (current.matches("idle")) {
     return null;
   }
 
@@ -37,7 +36,7 @@ const WebWorks = () => {
           width: "100vw",
         }}
       >
-        <img src={`/${currentPhoto}`} alt="" />
+        <img src={`/webworks01.png`} alt="" />
       </div>
     </div>
   );
