@@ -28,7 +28,7 @@ export interface User {
 
 export enum ParticipantType {
   Attacker,
-  Defender,
+  Blocker,
   Healer,
 }
 

@@ -24,8 +24,8 @@ export interface ChatAttackEvent {
     user: User;
   };
 }
-export interface ChatDefendEvent {
-  type: "CHAT_DEFEND";
+export interface ChatBlockEvent {
+  type: "CHAT_BLOCK";
   payload: {
     user: User;
   };
@@ -49,7 +49,7 @@ export interface TickEvent {
 export type Event =
   | MessageEvent
   | ChatAttackEvent
-  | ChatDefendEvent
+  | ChatBlockEvent
   | ChatHealEvent
   | ManualSpawnEvent
   | ManualMonsterDeathEvent

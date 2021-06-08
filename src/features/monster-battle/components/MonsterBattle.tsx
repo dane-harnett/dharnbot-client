@@ -11,10 +11,10 @@ import monsterBattleMachine from "../state-machine/machine";
 import MonsterImage from "./MonsterImage";
 import MonsterInfo from "./MonsterInfo";
 import MonsterName from "./MonsterName";
-import { isAttacker, isDefender, isHealer } from "../participants";
+import { isAttacker, isBlocker, isHealer } from "../participants";
 import {
   ChatAttackEvent,
-  ChatDefendEvent,
+  ChatBlockEvent,
   ChatHealEvent,
   ManualSpawnEvent,
   ManualMonsterDeathEvent,
@@ -47,11 +47,11 @@ const actionList = [
     isBroadcasterOnly: false,
     action: (event: any) => {
       return {
-        type: "CHAT_DEFEND",
+        type: "CHAT_BLOCK",
         payload: {
           user: event.user,
         },
-      } as ChatDefendEvent;
+      } as ChatBlockEvent;
     },
   },
   {
@@ -258,7 +258,7 @@ const MonsterBattle = () => {
                   />
                 ))}
                 Defenders:
-                {current.context.participants.filter(isDefender).map((u) => (
+                {current.context.participants.filter(isBlocker).map((u) => (
                   <img
                     src={u.profile_image_url}
                     style={{ width: 48, height: 48 }}

@@ -2,7 +2,7 @@ import { assign } from "xstate";
 import channelData from "../data/channel";
 import customMonsters from "../data/customMonsters";
 import monsterLevels from "../data/monsterLevels";
-import { isAttacker, isDefender, isHealer } from "../participants";
+import { isAttacker, isBlocker, isHealer } from "../participants";
 import { MonsterType, ParticipantType } from "../types";
 import { Context, Event } from "./types";
 
@@ -16,11 +16,11 @@ export const tick = assign<Context, Event>(
     }
 
     let attackers = [];
-    let defenders = [];
+    let blockers = [];
     let healers = [];
     if (participants !== null) {
       attackers = participants.filter(isAttacker);
-      defenders = participants.filter(isDefender);
+      blockers = participants.filter(isBlocker);
       healers = participants.filter(isHealer);
     }
 
@@ -32,7 +32,7 @@ export const tick = assign<Context, Event>(
       const variedDamage =
         Math.floor(Math.random() * monsterLevel.damage.max) +
         monsterLevel.damage.min;
-      const possibleDamage = variedDamage - defenders.length;
+      const possibleDamage = variedDamage - blockers.length;
       const channelDamage = possibleDamage <= 0 ? 0 : possibleDamage;
       console.log("@@@ channelDamage this tick is", channelDamage);
       const newChannelHealth = channel.health - channelDamage + healers.length;
@@ -64,7 +64,7 @@ export const addParticipant = assign<Context, Event>(
     }
     if (
       evt.type === "CHAT_ATTACK" ||
-      evt.type === "CHAT_DEFEND" ||
+      evt.type === "CHAT_BLOCK" ||
       evt.type === "CHAT_HEAL"
     ) {
       const existing = participants.find((user) => {
@@ -80,8 +80,8 @@ export const addParticipant = assign<Context, Event>(
             type:
               evt.type === "CHAT_ATTACK"
                 ? ParticipantType.Attacker
-                : evt.type === "CHAT_DEFEND"
-                ? ParticipantType.Defender
+                : evt.type === "CHAT_BLOCK"
+                ? ParticipantType.Blocker
                 : ParticipantType.Healer,
           },
         ]),

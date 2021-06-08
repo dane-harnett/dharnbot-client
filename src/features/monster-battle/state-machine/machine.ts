@@ -52,7 +52,7 @@ const monsterBattleMachine = createMachine<Context, Event, State>(
               actions: "addParticipant",
             },
           ],
-          CHAT_DEFEND: [
+          CHAT_BLOCK: [
             {
               target: "starting",
               actions: "addParticipant",
@@ -96,7 +96,7 @@ const monsterBattleMachine = createMachine<Context, Event, State>(
               actions: "addParticipant",
             },
           ],
-          CHAT_DEFEND: [
+          CHAT_BLOCK: [
             {
               target: "active",
               actions: "addParticipant",
