@@ -31,6 +31,15 @@ interface State {
   food: Food[];
   snakes: Snake[];
 }
+interface MessageAction {
+  type: "MESSAGE";
+  payload: any;
+}
+interface TickAction {
+  type: "MESSAGE";
+  payload: any;
+}
+type Action = MessageAction | TickAction;
 
 const CELL_SIZE = 30;
 const CANVAS_WIDTH = 1920 / CELL_SIZE;
@@ -129,111 +138,101 @@ const dontRunIntoAnotherSnake = (current: Snake, snakes: Snake[]) => (
   return !isAnotherSnakeInDirection;
 };
 
-const reducer = (state: State, action: any) => {
-  if (
-    action.type === "MESSAGE" &&
-    (action.payload.commandData.message.context.badges?.broadcaster === "1" ||
-      action.payload.commandData.message.context.mod) &&
-    action.payload.commandData.message.message.indexOf("!snake remove") === 0
-  ) {
-    const usernameSnakeToRemove = action.payload.commandData.message.message.replace(
-      "!snake remove ",
-      ""
-    );
-    const newSnakes = state.snakes.filter((snake: Snake) => {
-      return !(
-        snake.user.login.toLowerCase() === usernameSnakeToRemove.toLowerCase()
+type Reducer<S, A> = (state: S, action: A) => S;
+
+const reducer = (state: State, action: Action) => {
+  if (action.type === "MESSAGE") {
+    if (
+      (action.payload.commandData.message.context.badges?.broadcaster === "1" ||
+        action.payload.commandData.message.context.mod) &&
+      action.payload.commandData.message.message.indexOf("!snake remove") === 0
+    ) {
+      const usernameSnakeToRemove = action.payload.commandData.message.message.replace(
+        "!snake remove ",
+        ""
       );
-    });
-    return {
-      ...state,
-      snakes: newSnakes,
-    };
-  }
-  if (
-    action.type === "MESSAGE" &&
-    action.payload.commandData.message.message === "!snake fast"
-  ) {
-    let newSnakes = [...state.snakes];
+      const newSnakes = state.snakes.filter((snake: Snake) => {
+        return !(
+          snake.user.login.toLowerCase() === usernameSnakeToRemove.toLowerCase()
+        );
+      });
+      return {
+        ...state,
+        snakes: newSnakes,
+      };
+    }
+    if (action.payload.commandData.message.message === "!snake fast") {
+      let newSnakes = [...state.snakes];
 
-    for (let i = 0; i < newSnakes.length; i++) {
-      if (newSnakes[i].user.login === action.payload.commandData.user.login) {
-        newSnakes[i].speed = 1;
+      for (let i = 0; i < newSnakes.length; i++) {
+        if (newSnakes[i].user.login === action.payload.commandData.user.login) {
+          newSnakes[i].speed = 1;
+        }
       }
+      return {
+        ...state,
+        snakes: newSnakes,
+      };
     }
-    return {
-      ...state,
-      snakes: newSnakes,
-    };
-  }
 
-  if (
-    action.type === "MESSAGE" &&
-    action.payload.commandData.message.message === "!snake medium"
-  ) {
-    let newSnakes = [...state.snakes];
+    if (action.payload.commandData.message.message === "!snake medium") {
+      let newSnakes = [...state.snakes];
 
-    for (let i = 0; i < newSnakes.length; i++) {
-      if (newSnakes[i].user.login === action.payload.commandData.user.login) {
-        newSnakes[i].speed = 2;
+      for (let i = 0; i < newSnakes.length; i++) {
+        if (newSnakes[i].user.login === action.payload.commandData.user.login) {
+          newSnakes[i].speed = 2;
+        }
       }
+      return {
+        ...state,
+        snakes: newSnakes,
+      };
     }
-    return {
-      ...state,
-      snakes: newSnakes,
-    };
-  }
 
-  if (
-    action.type === "MESSAGE" &&
-    action.payload.commandData.message.message === "!snake slow"
-  ) {
-    let newSnakes = [...state.snakes];
+    if (action.payload.commandData.message.message === "!snake slow") {
+      let newSnakes = [...state.snakes];
 
-    for (let i = 0; i < newSnakes.length; i++) {
-      if (newSnakes[i].user.login === action.payload.commandData.user.login) {
-        newSnakes[i].speed = 3;
+      for (let i = 0; i < newSnakes.length; i++) {
+        if (newSnakes[i].user.login === action.payload.commandData.user.login) {
+          newSnakes[i].speed = 3;
+        }
       }
-    }
-    return {
-      ...state,
-      snakes: newSnakes,
-    };
-  }
-
-  if (
-    action.type === "MESSAGE" &&
-    action.payload.commandData.message.message === "!snake"
-  ) {
-    const userSnakes = state.snakes.filter(
-      (snake: Snake) =>
-        snake.user.login === action.payload.commandData.user.login
-    );
-    if (userSnakes.length > 0) {
-      return state;
+      return {
+        ...state,
+        snakes: newSnakes,
+      };
     }
 
-    const direction = getRandomItem(DIRECTIONS);
-    const headCell: Cell = {
-      x: Math.floor(Math.random() * CANVAS_WIDTH),
-      y: Math.floor(Math.random() * CANVAS_HEIGHT),
-    };
-    return {
-      ...state,
-      snakes: [
-        ...state.snakes,
-        {
-          user: action.payload.commandData.user,
-          isAlive: true,
-          direction,
-          cells: [headCell],
-          tickCount: 0,
-          speed: 2,
-        },
-      ],
-    };
-  }
-  if (action.type === "TICK") {
+    if (action.payload.commandData.message.message === "!snake") {
+      const userSnakes = state.snakes.filter(
+        (snake: Snake) =>
+          snake.user.login === action.payload.commandData.user.login
+      );
+      if (userSnakes.length > 0) {
+        return state;
+      }
+
+      const direction = getRandomItem(DIRECTIONS);
+      const headCell: Cell = {
+        x: Math.floor(Math.random() * CANVAS_WIDTH),
+        y: Math.floor(Math.random() * CANVAS_HEIGHT),
+      };
+      return {
+        ...state,
+        snakes: [
+          ...state.snakes,
+          {
+            user: action.payload.commandData.user,
+            isAlive: true,
+            direction,
+            cells: [headCell],
+            tickCount: 0,
+            speed: 2,
+          },
+        ],
+      };
+    }
+  } else if (action.type === "TICK") {
     let newFood = [
       ...state.food
         .map((food: Food) => ({
@@ -375,11 +374,37 @@ const reducer = (state: State, action: any) => {
   return state;
 };
 
+const useLocalStorageReducer = (
+  key: string,
+  reducer: Reducer<State, Action>,
+  initialState: State
+) => {
+  let persistedState = initialState;
+  const localStorageState = window.localStorage.getItem(key);
+  if (typeof localStorageState === "string") {
+    try {
+      persistedState = JSON.parse(localStorageState);
+    } catch (err) {
+      persistedState = initialState;
+    }
+  }
+  const [state, dispatch] = useReducer(reducer, persistedState);
+
+  window.localStorage.setItem(key, JSON.stringify(state));
+
+  return [state, dispatch];
+};
+
 const SnakeGameProvider: React.FC = ({ children }) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useLocalStorageReducer(
+    "SNAKE_STATE",
+    reducer,
+    initialState
+  );
   const [visible, setVisible] = useState(true);
 
   useMessage((event: any) => {
+    // @ts-ignore
     dispatch({
       type: "MESSAGE",
       payload: {
@@ -397,6 +422,7 @@ const SnakeGameProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     const timer = setInterval(() => {
+      // @ts-ignore
       dispatch({ type: "TICK" });
     }, TICK_DURATION);
     return () => clearInterval(timer);

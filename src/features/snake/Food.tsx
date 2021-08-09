@@ -1,6 +1,10 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
+import * as Icons from "@material-ui/icons";
+import SvgIcon from "@material-ui/core/SvgIcon";
 
 import SnakeGameContext from "./SnakeGameContext";
+
+const allIcons = Object.entries(Icons);
 
 interface Props {
   food: {
@@ -10,21 +14,24 @@ interface Props {
 }
 const Food = ({ food }: Props) => {
   const { cellSize, visible } = useContext(SnakeGameContext);
+  const [Icon] = useState<typeof SvgIcon>(
+    allIcons[Math.floor(Math.random() * allIcons.length)][1]
+  );
   return (
     <div
       style={{
         left: food.x * cellSize,
         top: food.y * cellSize,
         position: "fixed",
-        backgroundColor: "palevioletred",
-        border: "1px solid #eeeeee",
         boxSizing: "border-box",
         opacity: visible ? 1 : 0,
         width: cellSize,
         height: cellSize,
         zIndex: 12,
       }}
-    />
+    >
+      <Icon fontSize="large" htmlColor="palevioletred" />
+    </div>
   );
 };
 

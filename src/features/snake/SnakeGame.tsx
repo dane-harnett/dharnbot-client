@@ -21,7 +21,7 @@ const SnakeGame = () => {
         <Snake snake={snake} />
       ))}
       {state.food.map((food: any) => (
-        <Food food={food} />
+        <Food food={food} key={`x:${food.x}y:${food.y}`} />
       ))}
     </div>
   );
