@@ -1,0 +1,15 @@
+export const excludedWords = [
+  "a",
+  "are",
+  "i",
+  "if",
+  "is",
+  "it",
+  "me",
+  "my",
+  "ok",
+  "okay",
+  "the",
+  "this",
+  "you",
+];

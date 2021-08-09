@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
+import ChatWords from "../features/chat-words";
 import MonsterBattle from "../features/monster-battle";
 import SnakeGame, { Leaderboard, SnakeGameProvider } from "../features/snake";
 import WebWorks from "../features/web-works";
@@ -47,6 +48,7 @@ function App() {
             </Route>
             <Route path="/">
               <div className="overlay">
+                <ChatWords />
                 <MonsterBattle />
                 <WebWorks />
                 <SnakeGame />
