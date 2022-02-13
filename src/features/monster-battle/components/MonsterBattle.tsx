@@ -253,6 +253,7 @@ const MonsterBattle = () => {
                 Channel HP: (Attackers:
                 {current.context.participants.filter(isAttacker).map((u) => (
                   <img
+                    alt="Profile"
                     src={u.profile_image_url}
                     style={{ width: 48, height: 48 }}
                   />
@@ -260,6 +261,7 @@ const MonsterBattle = () => {
                 Defenders:
                 {current.context.participants.filter(isBlocker).map((u) => (
                   <img
+                    alt="Profile"
                     src={u.profile_image_url}
                     style={{ width: 48, height: 48 }}
                   />
@@ -267,6 +269,7 @@ const MonsterBattle = () => {
                 Healers:
                 {current.context.participants.filter(isHealer).map((u) => (
                   <img
+                    alt="Profile"
                     src={u.profile_image_url}
                     style={{ width: 48, height: 48 }}
                   />

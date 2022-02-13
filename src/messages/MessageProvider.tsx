@@ -19,6 +19,7 @@ const MessageProvider: React.FC = ({ children }) => {
     return () => {
       socket.removeListener("MESSAGE");
     };
+    // eslint-disable-next-line
   }, [subscriptions]);
 
   return (

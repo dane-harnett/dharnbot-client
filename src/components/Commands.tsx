@@ -27,6 +27,7 @@ const Commands = () => {
       <Command>!snake</Command>
       <Command>!drop</Command>
       <Command>!challenge</Command>
+      <Command>!pomo</Command>
     </Container>
   );
 };

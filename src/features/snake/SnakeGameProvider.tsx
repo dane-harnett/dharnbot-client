@@ -19,11 +19,29 @@ interface Snake {
   };
   tickCount: number;
 }
-
-interface Food {
+const foodKinds = [
+  "avocado",
+  "bacon",
+  "bagel",
+  "baguette-bread",
+  "banana",
+  "bell-pepper",
+  "blueberries",
+  "bread",
+  "broccoli",
+  "carrot",
+  "grapes",
+  "green-apple",
+  "hot-pepper",
+  "kiwi-fruit",
+  "meat-on-bone",
+] as const;
+export type FoodKind = typeof foodKinds[number];
+export interface Food {
   x: number;
   y: number;
   ticksSinceSpawn: number;
+  kind: FoodKind;
 }
 
 interface State {
@@ -47,7 +65,7 @@ const CANVAS_HEIGHT = 1080 / CELL_SIZE;
 const DIRECTIONS: Direction[] = ["up", "down", "left", "right"];
 const TICK_DURATION = 50;
 const TICK_FOOD_SPAWN_COUNT = 1000 / TICK_DURATION;
-const TICKS_TIL_FOOD_SPOILS = 200;
+export const TICKS_TIL_FOOD_SPOILS = 200;
 
 const getRandomItem = (arr: any) => arr[Math.floor(Math.random() * arr.length)];
 
@@ -345,6 +363,7 @@ const reducer = (state: State, action: Action) => {
         snake.cells.map((cell: Cell) => ({
           ...cell,
           ticksSinceSpawn: 0,
+          kind: foodKinds[Math.floor(Math.random() * foodKinds.length)],
         }))
       );
     });
@@ -359,6 +378,7 @@ const reducer = (state: State, action: Action) => {
         x: Math.floor(Math.random() * CANVAS_WIDTH),
         y: Math.floor(Math.random() * CANVAS_HEIGHT),
         ticksSinceSpawn: 0,
+        kind: foodKinds[Math.floor(Math.random() * foodKinds.length)],
       });
     }
     return {
@@ -426,6 +446,7 @@ const SnakeGameProvider: React.FC = ({ children }) => {
       dispatch({ type: "TICK" });
     }, TICK_DURATION);
     return () => clearInterval(timer);
+    // eslint-disable-next-line
   }, []);
 
   return (

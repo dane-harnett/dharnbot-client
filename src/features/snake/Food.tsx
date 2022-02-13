@@ -1,22 +1,22 @@
-import React, { useContext, useState } from "react";
-import * as Icons from "@material-ui/icons";
-import SvgIcon from "@material-ui/core/SvgIcon";
+import React, { useContext } from "react";
+import { Icon } from "@iconify/react";
 
 import SnakeGameContext from "./SnakeGameContext";
-
-const allIcons = Object.entries(Icons);
+import {
+  Food as FoodInterface,
+  TICKS_TIL_FOOD_SPOILS,
+} from "./SnakeGameProvider";
 
 interface Props {
-  food: {
-    x: number;
-    y: number;
-  };
+  food: FoodInterface;
 }
 const Food = ({ food }: Props) => {
   const { cellSize, visible } = useContext(SnakeGameContext);
-  const [Icon] = useState<typeof SvgIcon>(
-    allIcons[Math.floor(Math.random() * allIcons.length)][1]
-  );
+  let isHighlighted = false;
+  const ticksTilSpoil = TICKS_TIL_FOOD_SPOILS - food.ticksSinceSpawn;
+  if (ticksTilSpoil < 100) {
+    isHighlighted = ticksTilSpoil % 8 < 4;
+  }
   return (
     <div
       style={{
@@ -28,9 +28,10 @@ const Food = ({ food }: Props) => {
         width: cellSize,
         height: cellSize,
         zIndex: 12,
+        backgroundColor: isHighlighted ? "palevioletred" : "transparent",
       }}
     >
-      <Icon fontSize="large" htmlColor="palevioletred" />
+      <Icon icon={`twemoji:${food.kind}`} width={cellSize} height={cellSize} />
     </div>
   );
 };

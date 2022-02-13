@@ -8,5 +8,6 @@ export const useMessage = (callback: Callback, deps: any[]) => {
   const handleMessage = useCallback(callback, deps);
   useEffect(() => {
     subscribe(handleMessage);
+    // eslint-disable-next-line
   }, []);
 };

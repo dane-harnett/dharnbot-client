@@ -1,18 +1,10 @@
 import React from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
-import ChatWords from "../features/chat-words";
 import MonsterBattle from "../features/monster-battle";
-import SnakeGame, { Leaderboard, SnakeGameProvider } from "../features/snake";
-import WebWorks from "../features/web-works";
+import SnakeGame, { SnakeGameProvider } from "../features/snake";
 import MessageProvider from "../messages/MessageProvider";
-import BottomBar from "./BottomBar";
-import Commands from "./Commands";
-import Socials from "./Socials";
 import AdminScreen from "./AdminScreen";
-import HighlightedMessages from "./HighlightedMessages";
-import TopBar from "./TopBar";
-import TwitchFollowerCount from "./TwitchFollowerCount";
 
 import { createGlobalStyle } from "styled-components";
 import reset from "styled-reset";
@@ -48,19 +40,8 @@ function App() {
             </Route>
             <Route path="/">
               <div className="overlay">
-                <ChatWords />
                 <MonsterBattle />
-                <WebWorks />
                 <SnakeGame />
-                <HighlightedMessages />
-                <TopBar>
-                  <Socials />
-                  <TwitchFollowerCount />
-                </TopBar>
-                <BottomBar>
-                  <Commands />
-                  <Leaderboard />
-                </BottomBar>
               </div>
             </Route>
           </Switch>
