@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import { motion, AnimatePresence } from "framer-motion";
 import styled from "styled-components";
@@ -39,12 +39,12 @@ export default function TwitchFollowerCount() {
   const socket = useSocket();
   const [current, setCurrent] = useState(Displays.CountAndGoal);
   const timeOutRef = useRef<null | ReturnType<typeof setTimeout>>(null);
-  const setTimer = (destination: Displays) => {
+  const setTimer = useCallback((destination: Displays) => {
     timeOutRef.current = setTimeout(() => {
       setCurrent(destination);
       setTimer(DisplayNext[destination]);
     }, DisplayDuration[destination]);
-  };
+  }, []);
   useEffect(() => {
     setTimer(Displays.CallToAction);
     return () => {
@@ -52,7 +52,7 @@ export default function TwitchFollowerCount() {
         clearTimeout(timeOutRef.current);
       }
     };
-  }, []);
+  }, [setTimer]);
 
   const [followerCount, setFollowerCount] = useState<number>(0);
   const [latestFollower, setLatestFollower] = useState<string>("");
